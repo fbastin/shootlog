@@ -107,6 +107,34 @@ const I18N_CARNET = {
         'lbl-stat-col-4': 'Dispersion (MRAD)',
         'lbl-stat-mpi': 'Point moyen d\'impact (MPI)',
         'btn-s-cancel': 'Annuler',
+        'lbl-s-discipline': 'Discipline',
+        'opt-s-disp-none': '-- Sélectionner --',
+        'opt-s-disp-prec': 'Précision / Loisir',
+        'opt-s-disp-issf': 'Match ISSF',
+        'opt-s-disp-tld': 'Tir Longue Distance (TLD)',
+        'opt-s-disp-ipsc': 'IPSC / Tir Sportif de Vitesse',
+        'opt-s-disp-other': 'Autre discipline',
+        'lbl-s-objective': 'Objectif de la séance',
+        'lbl-s-sub-review': 'Évaluation & Bilan de séance',
+        'lbl-s-fatigue': 'Fatigue (1 = faible, 5 = élevée)',
+        'lbl-s-concentration': 'Concentration (1 = faible, 5 = élevée)',
+        'lbl-s-confidence': 'Confiance (1 = faible, 5 = élevée)',
+        'lbl-s-errors': 'Erreurs identifiées',
+        'lbl-s-actions': 'Actions pour la prochaine séance',
+        'lbl-chrono-import-title': 'Importer des vitesses',
+        'lbl-chrono-import-desc': 'Collez vos vitesses mesurées par votre chronographe (séparées par des virgules, des espaces ou des retours à la ligne).',
+        'lbl-chrono-raw-data': 'Vitesses (m/s) :',
+        'btn-chrono-cancel': 'Annuler',
+        'btn-chrono-calc': 'Calculer',
+        'btn-chrono-apply': 'Valider & Importer',
+        'lbl-chrono-count': 'Nombre de tirs :',
+        'lbl-chrono-avg': 'Vitesse moyenne :',
+        'lbl-chrono-sd': 'Écart-type (SD) :',
+        'lbl-chrono-minmax': 'Vitesse min/max :',
+        'btn-s-save': 'Enregistrer la séance',
+        'js-session-duplicate': 'Dupliquer',
+        'js-session-duplicate-title': 'Dupliquer cette séance',
+        'js-chrono-empty': 'Veuillez saisir des vitesses valides.',
         
         // Maintenance Modal
         'lbl-m-date': 'Date de l\'opération *',
@@ -237,6 +265,9 @@ const I18N_CARNET = {
         'js-error-weapon-req': 'Le nom et le calibre sont obligatoires.',
         'js-error-session-req': 'La date et l\'arme sont obligatoires.',
         'js-error-maint-req': 'Veuillez remplir tous les champs obligatoires (*).',
+        'js-session-duplicate': 'Dupliquer',
+        'js-session-duplicate-title': 'Dupliquer cette séance',
+        'js-chrono-empty': 'Veuillez saisir des vitesses valides.',
     },
     en: {
         // Headers & buttons
@@ -326,6 +357,34 @@ const I18N_CARNET = {
         'lbl-stat-col-4': 'Grouping (MRAD)',
         'lbl-stat-mpi': 'Mean Point of Impact (MPI)',
         'btn-s-cancel': 'Cancel',
+        'lbl-s-discipline': 'Discipline',
+        'opt-s-disp-none': '-- Select --',
+        'opt-s-disp-prec': 'Precision / Leisure',
+        'opt-s-disp-issf': 'ISSF Match',
+        'opt-s-disp-tld': 'Long Range Shooting (LRS)',
+        'opt-s-disp-ipsc': 'IPSC / Action Shooting',
+        'opt-s-disp-other': 'Other discipline',
+        'lbl-s-objective': 'Session Objective',
+        'lbl-s-sub-review': 'Self-Assessment & Review',
+        'lbl-s-fatigue': 'Fatigue (1 = low, 5 = high)',
+        'lbl-s-concentration': 'Concentration (1 = low, 5 = high)',
+        'lbl-s-confidence': 'Confidence (1 = low, 5 = high)',
+        'lbl-s-errors': 'Identified Errors',
+        'lbl-s-actions': 'Actions for Next Session',
+        'lbl-chrono-import-title': 'Import Velocities',
+        'lbl-chrono-import-desc': 'Paste your velocities measured by your chronograph (separated by commas, spaces, or newlines).',
+        'lbl-chrono-raw-data': 'Velocities (m/s):',
+        'btn-chrono-cancel': 'Cancel',
+        'btn-chrono-calc': 'Calculate',
+        'btn-chrono-apply': 'Validate & Import',
+        'lbl-chrono-count': 'Number of shots:',
+        'lbl-chrono-avg': 'Average velocity:',
+        'lbl-chrono-sd': 'Standard deviation (SD):',
+        'lbl-chrono-minmax': 'Min/Max velocity:',
+        'btn-s-save': 'Save Session',
+        'js-session-duplicate': 'Duplicate',
+        'js-session-duplicate-title': 'Duplicate this session',
+        'js-chrono-empty': 'Please enter valid velocities.',
         
         // Maintenance Modal
         'lbl-m-date': 'Date of Operation *',
@@ -456,6 +515,9 @@ const I18N_CARNET = {
         'js-error-weapon-req': 'Name and caliber are required.',
         'js-error-session-req': 'Date and weapon are required.',
         'js-error-maint-req': 'Please fill out all required fields (*).',
+        'js-session-duplicate': 'Duplicate',
+        'js-session-duplicate-title': 'Duplicate this session',
+        'js-chrono-empty': 'Please enter valid velocities.',
     }
 };
 
@@ -751,7 +813,14 @@ function loadDemoData() {
                 { x: 142.0, y: 141.0 },
                 { x: 140.5, y: 138.8 }
             ],
-            mpi: { x: 140.4, y: 140.3 }
+            mpi: { x: 140.4, y: 140.3 },
+            discipline: "tld",
+            objective: "Tenir la régularité et l'écart-type de vitesse",
+            fatigue: 2,
+            concentration: 5,
+            confidence: 4,
+            errors: "Rien à signaler de majeur, bon alignement.",
+            actions: "Conserver le même lot d'amorces pour la régularité."
         },
         {
             id: "s_demo_glock",
@@ -782,7 +851,14 @@ function loadDemoData() {
                 { x: 140.0, y: 132.2 },
                 { x: 137.4, y: 141.1 }
             ],
-            mpi: { x: 139.2, y: 138.8 }
+            mpi: { x: 139.2, y: 138.8 },
+            discipline: "precision",
+            objective: "Stabilité du grip en tir rapide",
+            fatigue: 4,
+            concentration: 3,
+            confidence: 3,
+            errors: "Précipitation sur les double-taps, lâcher un peu sec.",
+            actions: "Travailler à sec sur la fluidité de la course de détente."
         }
     ];
 
@@ -924,6 +1000,9 @@ function initEventListeners() {
             calculatePlotterStats();
         });
     }
+
+    // Initialize interactive star rating widgets
+    initStarRatings();
 }
 
 // ==========================================
@@ -1895,12 +1974,14 @@ function renderSessions() {
         html += `
             <div class="session-card" id="session-card-${s.id}">
                 <div class="session-header">
-                    <div class="session-title-block">
+                    <div class="session-title-block" style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
                         <span class="session-date">${formatDate(s.date)}</span>
                         <span class="session-stand"><i class="li-target"></i> ${escapeHTML(s.stand) || trans['js-session-stand']}</span>
+                        ${s.discipline ? `<span class="session-discipline-badge" style="background:var(--color-bg); border:1px solid var(--color-border); padding:0.15rem 0.5rem; font-size:0.75rem; font-weight:600; border-radius:12px; color:var(--color-text-light); text-transform:uppercase;">${trans['opt-s-disp-' + s.discipline] || s.discipline}</span>` : ''}
                     </div>
                     <div class="noprint" style="display:flex;gap:0.4rem;">
                         <button type="button" class="btn-icon" title="${trans['js-session-print']}" onclick="printSession('${s.id}')"><i class="li-printer"></i></button>
+                        <button type="button" class="btn-icon" title="${trans['js-session-duplicate-title'] || 'Dupliquer cette séance'}" onclick="duplicateSession('${s.id}')"><i class="li-copy"></i></button>
                         <button type="button" class="btn-icon" title="${trans['js-session-edit']}" onclick="openSessionModal('${s.id}')"><i class="li-pencil"></i></button>
                         <button type="button" class="btn-icon btn-danger" title="${trans['js-session-delete']}" onclick="deleteSession('${s.id}')"><i class="li-trash"></i></button>
                     </div>
@@ -1920,7 +2001,23 @@ function renderSessions() {
                             <h5>${trans['js-session-dist-conditions']}</h5>
                             <p>${s.distance} m<br><span style="font-size:0.8rem;color:var(--color-text-light);">${s.temp ? s.temp+'°C &bull; ' : ''}${s.wind ? s.wind+'m/s ' + trans['js-session-vent'] : trans['js-session-pas-de-vent']}</span></p>
                         </div>
+                        ${(s.discipline || s.objective) ? `
+                        <div class="session-info-block">
+                            <h5>${trans['lbl-s-discipline']} &amp; ${trans['lbl-s-objective']}</h5>
+                            <p>${s.discipline ? `<strong>${trans['opt-s-disp-' + s.discipline] || s.discipline}</strong>` : ''}${s.discipline && s.objective ? ' &bull; ' : ''}${s.objective ? `<span>${escapeHTML(s.objective)}</span>` : ''}</p>
+                        </div>` : ''}
+                        ${(s.fatigue || s.concentration || s.confidence) ? `
+                        <div class="session-info-block">
+                            <h5>${trans['lbl-s-sub-review']}</h5>
+                            <p style="font-size:0.85rem; line-height:1.4;">
+                                ${s.fatigue ? `<strong>${activeLang === 'en' ? 'Fatigue' : 'Fatigue'} :</strong> ${renderStars(s.fatigue)}<br>` : ''}
+                                ${s.concentration ? `<strong>${activeLang === 'en' ? 'Concentration' : 'Concentration'} :</strong> ${renderStars(s.concentration)}<br>` : ''}
+                                ${s.confidence ? `<strong>${activeLang === 'en' ? 'Confidence' : 'Confiance'} :</strong> ${renderStars(s.confidence)}` : ''}
+                            </p>
+                        </div>` : ''}
                         ${s.notes ? `<div class="session-notes">${escapeHTML(s.notes).replace(/\n/g, '<br>')}</div>` : ''}
+                        ${s.errors ? `<div class="session-notes" style="border-left: 3px solid #e74c3c; padding-left: 0.5rem; margin-top: 0.5rem;"><strong>${trans['lbl-s-errors']} :</strong> ${escapeHTML(s.errors).replace(/\n/g, '<br>')}</div>` : ''}
+                        ${s.actions ? `<div class="session-notes" style="border-left: 3px solid #2ecc71; padding-left: 0.5rem; margin-top: 0.5rem;"><strong>${trans['lbl-s-actions']} :</strong> ${escapeHTML(s.actions).replace(/\n/g, '<br>')}</div>` : ''}
                     </div>
                     
                     <div class="session-target-column">
@@ -2139,6 +2236,13 @@ function openSessionModal(sessionId = null) {
         document.getElementById('s_date').value = new Date().toISOString().split('T')[0];
         state.tempImpacts = [];
         document.getElementById('target_preset').value = 'issf_50m';
+        document.getElementById('s_discipline').value = '';
+        document.getElementById('s_objective').value = '';
+        setRating('fatigue', 0);
+        setRating('concentration', 0);
+        setRating('confidence', 0);
+        document.getElementById('s_errors').value = '';
+        document.getElementById('s_actions').value = '';
     } else {
         const s = state.sessions.find(sn => sn.id === sessionId);
         if (s) {
@@ -2146,6 +2250,8 @@ function openSessionModal(sessionId = null) {
             document.getElementById('s_stand').value = s.stand || '';
             document.getElementById('s_weapon_id').value = s.weaponId;
             document.getElementById('s_caliber').value = s.caliber || '';
+            document.getElementById('s_discipline').value = s.discipline || '';
+            document.getElementById('s_objective').value = s.objective || '';
             document.getElementById('s_ammo').value = s.ammo || '';
             document.getElementById('s_bullet_weight').value = s.bulletWeight || '';
             document.getElementById('s_powder_charge').value = s.powderCharge || '';
@@ -2156,6 +2262,13 @@ function openSessionModal(sessionId = null) {
             document.getElementById('s_notes').value = s.notes || '';
             document.getElementById('s_temp').value = s.temp || '';
             document.getElementById('s_wind').value = s.wind || '';
+            
+            // Set ratings
+            setRating('fatigue', s.fatigue || 0);
+            setRating('concentration', s.concentration || 0);
+            setRating('confidence', s.confidence || 0);
+            document.getElementById('s_errors').value = s.errors || '';
+            document.getElementById('s_actions').value = s.actions || '';
             
             // Re-load impacts
             state.tempImpacts = s.impacts ? [...s.impacts] : [];
@@ -2218,7 +2331,14 @@ function saveSession(event) {
         impacts: state.tempImpacts,
         mpi: mpi,
         targetPreset: document.getElementById('target_preset').value,
-        scaleMmPerPixel: state.scaleMmPerPixel
+        scaleMmPerPixel: state.scaleMmPerPixel,
+        discipline: document.getElementById('s_discipline').value,
+        objective: document.getElementById('s_objective').value.trim(),
+        fatigue: parseInt(document.getElementById('rating_fatigue').getAttribute('data-rating')) || 0,
+        concentration: parseInt(document.getElementById('rating_concentration').getAttribute('data-rating')) || 0,
+        confidence: parseInt(document.getElementById('rating_confidence').getAttribute('data-rating')) || 0,
+        errors: document.getElementById('s_errors').value.trim(),
+        actions: document.getElementById('s_actions').value.trim()
     };
     
     if (state.editingSessionId) {
@@ -2835,5 +2955,175 @@ function generateTldPrintTemplate() {
         </div>
     `;
 }
+
+
+/**
+ * Star ratings and Chrono/Duplication Helpers
+ */
+
+function initStarRatings() {
+    document.querySelectorAll('.star-rating').forEach(container => {
+        const stars = container.querySelectorAll('i');
+        stars.forEach(star => {
+            star.addEventListener('click', (e) => {
+                const val = parseInt(e.target.getAttribute('data-value')) || 0;
+                container.setAttribute('data-rating', val);
+                // Update active state
+                stars.forEach((s, idx) => {
+                    if (idx < val) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+    });
+}
+
+function setRating(type, val) {
+    const container = document.getElementById(`rating_${type}`);
+    if (!container) return;
+    container.setAttribute('data-rating', val);
+    const stars = container.querySelectorAll('i');
+    stars.forEach((star, idx) => {
+        if (idx < val) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+function renderStars(rating) {
+    rating = parseInt(rating) || 0;
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            stars += '&#9733;'; // ★
+        } else {
+            stars += '&#9734;'; // ☆
+        }
+    }
+    return `<span style="color:#f1c40f; font-size:1.15rem; font-family: monospace; letter-spacing: 2px;">${stars}</span>`;
+}
+
+function openChronoImport() {
+    document.getElementById('chrono_raw_data').value = '';
+    document.getElementById('chrono_import_stats').style.display = 'none';
+    document.getElementById('btn-chrono-apply').style.display = 'none';
+    document.getElementById('modal_chrono_import').style.display = 'flex';
+}
+
+function calculateChronoStats() {
+    const rawData = document.getElementById('chrono_raw_data').value;
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    
+    // Parse values: commas, spaces, or newlines
+    const values = rawData
+        .split(/[\s,\n\r]+/)
+        .map(v => parseFloat(v))
+        .filter(v => !isNaN(v) && v > 0);
+        
+    if (values.length === 0) {
+        showNotification(trans['js-chrono-empty'] || "Veuillez saisir des vitesses valides.", "error");
+        return;
+    }
+    
+    // Calculate stats
+    const count = values.length;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const sum = values.reduce((a, b) => a + b, 0);
+    const avg = sum / count;
+    
+    // SD (Standard Deviation)
+    let sd = 0;
+    if (count > 1) {
+        const sqDiffSum = values.reduce((accum, val) => accum + Math.pow(val - avg, 2), 0);
+        sd = Math.sqrt(sqDiffSum / (count - 1)); // Sample standard deviation
+    }
+    
+    // Update DOM
+    document.getElementById('val_chrono_count').innerText = count;
+    document.getElementById('val_chrono_avg').innerText = avg.toFixed(1);
+    document.getElementById('val_chrono_sd').innerText = sd.toFixed(1);
+    document.getElementById('val_chrono_min').innerText = min.toFixed(1);
+    document.getElementById('val_chrono_max').innerText = max.toFixed(1);
+    
+    // Show stats and apply button
+    document.getElementById('chrono_import_stats').style.display = 'block';
+    document.getElementById('btn-chrono-apply').style.display = 'inline-block';
+}
+
+function applyChronoImport() {
+    const avgVelocity = parseFloat(document.getElementById('val_chrono_avg').innerText) || 0;
+    const count = parseInt(document.getElementById('val_chrono_count').innerText) || 0;
+    
+    if (avgVelocity > 0) {
+        document.getElementById('s_velocity').value = Math.round(avgVelocity);
+    }
+    
+    // If there are no plotted impacts, set s_rounds_fired and lbl_shot_count.
+    if (state.tempImpacts.length === 0 && count > 0) {
+        document.getElementById('s_rounds_fired').value = count;
+        const lblShotCount = document.getElementById('lbl_shot_count');
+        if (lblShotCount) {
+            lblShotCount.innerText = count;
+        }
+    }
+    
+    closeModal('modal_chrono_import');
+}
+
+function duplicateSession(sessionId) {
+    const s = state.sessions.find(sn => sn.id === sessionId);
+    if (!s) return;
+    
+    // Open modal as a new session (so editingSessionId is null, when saved it creates a new session)
+    state.editingSessionId = null;
+    const modal = document.getElementById('modal_session');
+    const form = document.getElementById('form_session');
+    
+    document.getElementById('session_modal_title').innerText = activeLang === 'en' ? "Record a Shooting Session" : "Enregistrer une séance de tir";
+    form.reset();
+    
+    // Pre-fill with cloned data
+    document.getElementById('s_date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('s_stand').value = s.stand || '';
+    document.getElementById('s_weapon_id').value = s.weaponId;
+    document.getElementById('s_caliber').value = s.caliber || '';
+    document.getElementById('s_discipline').value = s.discipline || '';
+    document.getElementById('s_objective').value = s.objective || '';
+    
+    document.getElementById('s_ammo').value = s.ammo || '';
+    document.getElementById('s_bullet_weight').value = s.bulletWeight || '';
+    document.getElementById('s_powder_charge').value = s.powderCharge || '';
+    document.getElementById('s_velocity').value = s.velocity || '';
+    
+    document.getElementById('s_distance').value = s.distance || 100;
+    document.getElementById('s_temp').value = s.temp || '';
+    document.getElementById('s_wind').value = s.wind || '';
+    
+    // Clear plotter impacts and stats
+    state.tempImpacts = [];
+    document.getElementById('target_preset').value = s.targetPreset || 'issf_50m';
+    document.getElementById('s_rounds_fired').value = 0;
+    document.getElementById('s_group_size').value = 0;
+    
+    // Reset stars & reviews for the duplicate
+    setRating('fatigue', 0);
+    setRating('concentration', 0);
+    setRating('confidence', 0);
+    document.getElementById('s_notes').value = '';
+    document.getElementById('s_errors').value = '';
+    document.getElementById('s_actions').value = '';
+    
+    modal.style.display = 'flex';
+    
+    // Draw target board grid and impacts
+    updateTargetScale();
+}
+
 
 

@@ -253,6 +253,21 @@ include 'header.php';
                         <label for="s_caliber" id="lbl-s-caliber">Calibre</label>
                         <input type="text" id="s_caliber" placeholder="Ex: 6.5 CM (autocomplété)" list="calibers_list">
                     </div>
+                    <div class="form-group">
+                        <label for="s_discipline" id="lbl-s-discipline">Discipline</label>
+                        <select id="s_discipline">
+                            <option value="" id="opt-s-disp-none">-- Sélectionner --</option>
+                            <option value="precision" id="opt-s-disp-prec">Précision / Loisir</option>
+                            <option value="issf" id="opt-s-disp-issf">Match ISSF</option>
+                            <option value="tld" id="opt-s-disp-tld">Tir Longue Distance (TLD)</option>
+                            <option value="ipsc" id="opt-s-disp-ipsc">IPSC / Tir Sportif de Vitesse</option>
+                            <option value="autre" id="opt-s-disp-other">Autre discipline</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="s_objective" id="lbl-s-objective">Objectif de la séance</label>
+                        <input type="text" id="s_objective" placeholder="Ex: Lâcher, lecture du vent...">
+                    </div>
                     
                     <h4 class="full-width" id="lbl-s-sub-ammo" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Munition &amp; Balistique</h4>
                     
@@ -270,7 +285,10 @@ include 'header.php';
                     </div>
                     <div class="form-group">
                         <label for="s_velocity" id="lbl-s-velocity">Vitesse initiale mesurée (m/s)</label>
-                        <input type="number" id="s_velocity" placeholder="Ex: 820">
+                        <div style="display:flex; gap:0.25rem;">
+                            <input type="number" id="s_velocity" placeholder="Ex: 820" style="flex:1;">
+                            <button type="button" class="btn-secondary" style="padding:0 0.5rem;" onclick="openChronoImport()" id="btn-chrono-import" title="Importer des vitesses de chronographe"><i class="li-clock"></i></button>
+                        </div>
                     </div>
                     
                     <h4 class="full-width" id="lbl-s-sub-cond" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Conditions &amp; Résultats</h4>
@@ -290,6 +308,53 @@ include 'header.php';
                     <div class="form-group">
                         <label for="s_notes" id="lbl-s-notes">Notes additionnelles</label>
                         <input type="text" id="s_notes" placeholder="Sensations, réglages de clics effectués...">
+                    </div>
+ 
+                    <h4 class="full-width" id="lbl-s-sub-review" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Évaluation &amp; Bilan de séance</h4>
+                    
+                    <div class="form-group">
+                        <label id="lbl-s-fatigue">Fatigue (1 = faible, 5 = élevée)</label>
+                        <div class="star-rating" id="rating_fatigue" data-rating="0">
+                            <i class="li-star" data-value="1"></i>
+                            <i class="li-star" data-value="2"></i>
+                            <i class="li-star" data-value="3"></i>
+                            <i class="li-star" data-value="4"></i>
+                            <i class="li-star" data-value="5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label id="lbl-s-concentration">Concentration (1 = faible, 5 = élevée)</label>
+                        <div class="star-rating" id="rating_concentration" data-rating="0">
+                            <i class="li-star" data-value="1"></i>
+                            <i class="li-star" data-value="2"></i>
+                            <i class="li-star" data-value="3"></i>
+                            <i class="li-star" data-value="4"></i>
+                            <i class="li-star" data-value="5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label id="lbl-s-confidence">Confiance (1 = faible, 5 = élevée)</label>
+                        <div class="star-rating" id="rating_confidence" data-rating="0">
+                            <i class="li-star" data-value="1"></i>
+                            <i class="li-star" data-value="2"></i>
+                            <i class="li-star" data-value="3"></i>
+                            <i class="li-star" data-value="4"></i>
+                            <i class="li-star" data-value="5"></i>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <!-- Balance grid -->
+                    </div>
+                    
+                    <div class="form-group full-width" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                        <div>
+                            <label for="s_errors" id="lbl-s-errors">Erreurs identifiées</label>
+                            <textarea id="s_errors" rows="2" placeholder="Ex: Doigt trop haut sur la détente, précipitation..."></textarea>
+                        </div>
+                        <div>
+                            <label for="s_actions" id="lbl-s-actions">Actions pour la prochaine séance</label>
+                            <textarea id="s_actions" rows="2" placeholder="Ex: Ralentir le rythme de tir, travailler la respiration..."></textarea>
+                        </div>
                     </div>
  
                     <!-- Plotter de cible interactif -->
@@ -527,6 +592,36 @@ include 'header.php';
                 </svg>
             </div>
             <div class="print-target-caption" id="lbl-print-tpl-target-caption">Cible de réglage (C50 proportionnelle)</div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL : Import de vitesses -->
+<div id="modal_chrono_import" class="modal-overlay" style="z-index: 1100;">
+    <div class="modal-box" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3 id="lbl-chrono-import-title">Importer des vitesses</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modal_chrono_import')">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:1.25rem;">
+            <p id="lbl-chrono-import-desc" style="font-size:0.85rem; color:var(--color-text-light); margin-bottom:1rem;">
+                Collez vos vitesses mesurées par votre chronographe (séparées par des virgules, des espaces ou des retours à la ligne).
+            </p>
+            <div class="form-group" style="margin-bottom:1rem;">
+                <label for="chrono_raw_data" id="lbl-chrono-raw-data" style="font-weight:600; display:block; margin-bottom:0.25rem;">Vitesses (m/s) :</label>
+                <textarea id="chrono_raw_data" rows="5" placeholder="Ex: 820, 818, 825, 822, 819" style="width:100%; font-family: monospace; padding:0.5rem; border-radius:var(--radius); border:1px solid var(--color-border); background:var(--color-surface); color:var(--color-text);"></textarea>
+            </div>
+            <div id="chrono_import_stats" style="margin-top:1rem; font-size:0.85rem; display:none; background:var(--color-bg); padding:0.75rem; border-radius:var(--radius); border:1px dashed var(--color-border); color:var(--color-text); line-height:1.6;">
+                <div><strong id="lbl-chrono-count">Nombre de tirs :</strong> <span id="val_chrono_count">0</span></div>
+                <div><strong id="lbl-chrono-avg">Vitesse moyenne :</strong> <span id="val_chrono_avg">0</span> m/s</div>
+                <div><strong id="lbl-chrono-sd">Écart-type (SD) :</strong> <span id="val_chrono_sd">0</span> m/s</div>
+                <div><strong id="lbl-chrono-minmax">Vitesse min/max :</strong> <span id="val_chrono_min">0</span> / <span id="val_chrono_max">0</span> m/s</div>
+            </div>
+        </div>
+        <div class="modal-footer" style="padding:1rem 1.25rem; background:var(--color-surface); border-top:1px solid var(--color-border); display:flex; justify-content:flex-end; gap:0.5rem; border-radius:0 0 var(--radius) var(--radius);">
+            <button type="button" class="btn-secondary" onclick="closeModal('modal_chrono_import')" id="btn-chrono-cancel">Annuler</button>
+            <button type="button" class="btn-primary" onclick="calculateChronoStats()" id="btn-chrono-calc">Calculer</button>
+            <button type="button" class="btn-primary" onclick="applyChronoImport()" id="btn-chrono-apply" style="display:none;">Valider &amp; Importer</button>
         </div>
     </div>
 </div>

@@ -1356,4 +1356,20 @@ body.logbook-fullscreen .lang-selector {
     color: #fff;
 }
 
+/* Star Rating widget */
+.star-rating {
+    display: inline-flex;
+    gap: 0.3rem;
+    font-size: 1.3rem;
+    color: var(--color-border);
+    margin-top: 0.25rem;
+}
+.star-rating i {
+    cursor: pointer;
+    transition: color 0.1s ease;
+}
+.star-rating i.active, .star-rating i:hover {
+    color: #f1c40f;
+}
+
 
