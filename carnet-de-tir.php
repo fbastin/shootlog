@@ -18,7 +18,7 @@ include 'header.php';
 
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
         <div>
-            <h1 id="logbook-main-title" style="margin-bottom:0.25rem;">Carnet de Tir Numérique</h1>
+            <h1 style="margin-bottom:0.25rem;"><span id="logbook-main-title">Carnet de Tir Numérique</span> <span style="font-size: 0.5em; font-weight: normal; vertical-align: middle; background: rgba(9, 132, 227, 0.1); color: var(--color-primary); padding: 0.2rem 0.5rem; border-radius: 12px; margin-left: 0.5rem; border: 1px solid rgba(9, 132, 227, 0.2);">beta</span></h1>
             <p id="logbook-sub-title" style="color:var(--color-text-light); margin:0;">Suivez vos armes, séances de tir et opérations d'entretien. Fonctionne 100% hors-ligne et localement. Pour voir un exemple pré-rempli, visitez le <a href="/carnet-de-tir-exemple.php" style="text-decoration:underline; font-weight:500;">carnet d'exemple</a>.</p>
         </div>
         <div class="noprint" style="display:flex; gap:0.5rem; align-items:center;">
