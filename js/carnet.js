@@ -974,8 +974,22 @@ function initEventListeners() {
             if (w) {
                 document.getElementById('s_caliber').value = w.caliber || '';
                 document.getElementById('s_distance').value = w.zeroDistance || '';
+                updateCaliberInfo('s_caliber', 's_caliber_info');
             }
         });
+    }
+
+    // Handle caliber input changes to show database linkage
+    const wCaliberInput = document.getElementById('w_caliber');
+    if (wCaliberInput) {
+        wCaliberInput.addEventListener('input', () => updateCaliberInfo('w_caliber', 'w_caliber_info'));
+        wCaliberInput.addEventListener('change', () => updateCaliberInfo('w_caliber', 'w_caliber_info'));
+    }
+
+    const sCaliberInput = document.getElementById('s_caliber');
+    if (sCaliberInput) {
+        sCaliberInput.addEventListener('input', () => updateCaliberInfo('s_caliber', 's_caliber_info'));
+        sCaliberInput.addEventListener('change', () => updateCaliberInfo('s_caliber', 's_caliber_info'));
     }
 
     // Target preset scaling
@@ -2157,6 +2171,9 @@ function openWeaponModal(weaponId = null) {
     }
     
     modal.style.display = 'flex';
+    
+    // Update caliber database linkage info
+    updateCaliberInfo('w_caliber', 'w_caliber_info');
 }
 
 // Save Weapon Form
@@ -2281,6 +2298,9 @@ function openSessionModal(sessionId = null) {
     
     // Draw target board grid and impacts
     updateTargetScale();
+    
+    // Update caliber database linkage info
+    updateCaliberInfo('s_caliber', 's_caliber_info');
 }
 
 // Save Session Form
@@ -3123,6 +3143,42 @@ function duplicateSession(sessionId) {
     
     // Draw target board grid and impacts
     updateTargetScale();
+    
+    // Update caliber database linkage info
+    updateCaliberInfo('s_caliber', 's_caliber_info');
+}
+
+function updateCaliberInfo(inputId, infoId) {
+    const input = document.getElementById(inputId);
+    const infoDiv = document.getElementById(infoId);
+    if (!input || !infoDiv) return;
+    
+    const val = input.value.trim();
+    if (!val) {
+        infoDiv.style.display = 'none';
+        infoDiv.innerHTML = '';
+        return;
+    }
+    
+    const cal = findCaliberInDB(val);
+    if (cal) {
+        const details = [];
+        if (cal.bullet_diameter_mm) details.push(`Ø Balle: ${cal.bullet_diameter_mm}mm`);
+        if (cal.case_length_mm) details.push(`L étui: ${cal.case_length_mm}mm`);
+        if (cal.max_pressure_bar) details.push(`Pmax: ${cal.max_pressure_bar} bar`);
+        
+        const detailsStr = details.length > 0 ? `(${details.join(', ')})` : '';
+        
+        infoDiv.innerHTML = `
+            <a href="/calibres.php?id=${cal.id}" target="_blank" class="caliber-db-link" title="Voir dans la base des calibres" style="color:var(--color-accent); text-decoration:none; display:inline-flex; align-items:center; gap:0.25rem;">
+                <i class="li-eye" style="font-size:0.85em;"></i> ${activeLang === 'en' ? 'Linked caliber' : 'Calibre lié'} : ${cal.name} ${detailsStr}
+            </a>
+        `;
+        infoDiv.style.display = 'block';
+    } else {
+        infoDiv.style.display = 'none';
+        infoDiv.innerHTML = '';
+    }
 }
 
 

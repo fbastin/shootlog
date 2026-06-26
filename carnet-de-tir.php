@@ -190,6 +190,7 @@ include 'header.php';
                     <div class="form-group">
                         <label for="w_caliber" id="lbl-w-caliber">Calibre *</label>
                         <input type="text" id="w_caliber" placeholder="Ex: 6.5 Creedmoor, 9x19mm..." list="calibers_list" required>
+                        <div id="w_caliber_info" style="margin-top:0.25rem; font-size:0.8rem; display:none;"></div>
                     </div>
                     <div class="form-group">
                         <label for="w_barrel_length" id="lbl-w-barrel-length">Longueur de canon (pouces)</label>
@@ -252,6 +253,7 @@ include 'header.php';
                     <div class="form-group">
                         <label for="s_caliber" id="lbl-s-caliber">Calibre</label>
                         <input type="text" id="s_caliber" placeholder="Ex: 6.5 CM (autocomplété)" list="calibers_list">
+                        <div id="s_caliber_info" style="margin-top:0.25rem; font-size:0.8rem; display:none;"></div>
                     </div>
                     <div class="form-group">
                         <label for="s_discipline" id="lbl-s-discipline">Discipline</label>
