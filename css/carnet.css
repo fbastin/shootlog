@@ -1328,11 +1328,14 @@ body.logbook-fullscreen #cadre {
 
 /* Language selector styling */
 .lang-selector {
-    display: inline-flex;
+    display: none !important;
     background: var(--color-surface-hover, rgba(128, 128, 128, 0.05));
     border: 1px solid var(--color-border);
     border-radius: 20px;
     padding: 2px;
+}
+body.logbook-fullscreen .lang-selector {
+    display: inline-flex !important;
 }
 .lang-btn {
     background: none;
