@@ -135,6 +135,12 @@ const I18N_CARNET = {
         'js-session-duplicate': 'Dupliquer',
         'js-session-duplicate-title': 'Dupliquer cette séance',
         'js-chrono-empty': 'Veuillez saisir des vitesses valides.',
+        'lbl-weather-btn': 'Météo auto',
+        'js-weather-success': 'Données météo récupérées avec succès.',
+        'js-weather-error-geo': 'Géolocalisation non supportée ou refusée.',
+        'js-weather-error-fetch': 'Impossible de récupérer les données météo.',
+        'js-weather-offline': 'Vous devez être en ligne pour utiliser cette fonction.',
+        'js-weather-fetching': 'Chargement...',
         
         // Maintenance Modal
         'lbl-m-date': 'Date de l\'opération *',
@@ -385,6 +391,12 @@ const I18N_CARNET = {
         'js-session-duplicate': 'Duplicate',
         'js-session-duplicate-title': 'Duplicate this session',
         'js-chrono-empty': 'Please enter valid velocities.',
+        'lbl-weather-btn': 'Auto weather',
+        'js-weather-success': 'Weather data successfully retrieved.',
+        'js-weather-error-geo': 'Geolocation not supported or permission denied.',
+        'js-weather-error-fetch': 'Failed to retrieve weather data.',
+        'js-weather-offline': 'You must be online to use this feature.',
+        'js-weather-fetching': 'Loading...',
         
         // Maintenance Modal
         'lbl-m-date': 'Date of Operation *',
@@ -3179,6 +3191,83 @@ function updateCaliberInfo(inputId, infoId) {
         infoDiv.style.display = 'none';
         infoDiv.innerHTML = '';
     }
+}
+
+function fetchLocalWeather() {
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    
+    if (navigator.onLine === false) {
+        showNotification(trans['js-weather-offline'], "error");
+        return;
+    }
+    
+    const btn = document.getElementById('btn-weather-fetch');
+    const btnSpan = document.getElementById('lbl-weather-btn');
+    if (!btn || !btnSpan) return;
+    
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btnSpan.innerText = trans['js-weather-fetching'];
+    
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            try {
+                const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m&wind_speed_unit=ms`);
+                if (!response.ok) {
+                    throw new Error("HTTP error " + response.status);
+                }
+                const data = await response.json();
+                
+                if (data && data.current) {
+                    const tempVal = data.current.temperature_2m;
+                    const windVal = data.current.wind_speed_10m;
+                    
+                    document.getElementById('s_temp').value = Math.round(tempVal);
+                    document.getElementById('s_wind').value = Math.round(windVal);
+                    
+                    // Add weather retrieval note
+                    const notesInput = document.getElementById('s_notes');
+                    if (notesInput) {
+                        const noteText = activeLang === 'en' 
+                            ? "Auto-fetched weather via Open-Meteo." 
+                            : "Météo récupérée automatiquement via Open-Meteo.";
+                        
+                        let currentVal = notesInput.value.trim();
+                        if (currentVal) {
+                            if (!currentVal.includes(noteText)) {
+                                notesInput.value = currentVal + " &bull; " + noteText;
+                            }
+                        } else {
+                            notesInput.value = noteText;
+                        }
+                    }
+                    
+                    showNotification(trans['js-weather-success']);
+                } else {
+                    throw new Error("Invalid response format");
+                }
+            } catch (err) {
+                console.error("Error fetching weather", err);
+                showNotification(trans['js-weather-error-fetch'], "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        },
+        (error) => {
+            console.error("Error geolocating user", error);
+            showNotification(trans['js-weather-error-geo'], "error");
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        },
+        {
+            timeout: 10000,
+            maximumAge: 60000
+        }
+    );
 }
 
 

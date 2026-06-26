@@ -306,7 +306,10 @@ include 'header.php';
                         </div>
                     </div>
                     
-                    <h4 class="full-width" id="lbl-s-sub-cond" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Conditions &amp; Résultats</h4>
+                    <div class="full-width" style="display:flex; justify-content:space-between; align-items:center; margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">
+                        <h4 id="lbl-s-sub-cond" style="margin:0;">Conditions &amp; Résultats</h4>
+                        <button type="button" class="btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.8rem; display:flex; align-items:center; gap:0.25rem;" onclick="fetchLocalWeather()" id="btn-weather-fetch"><i class="li-sun"></i> <span id="lbl-weather-btn">Météo auto</span></button>
+                    </div>
                     
                     <div class="form-group">
                         <label for="s_distance" id="lbl-s-distance">Distance (mètres) *</label>
