@@ -16,21 +16,602 @@ let state = {
     editingMaintId: null
 };
 
-// Target board definitions
-const TARGET_PRESETS = {
-    'c50': { name: 'C50 (Cible 50m - Visuel 200mm)', diameterMm: 200, label: 'mm' },
-    'c200': { name: 'C200 (Cible 200m - Visuel 400mm)', diameterMm: 400, label: 'mm' },
-    'moa': { name: 'Cible MOA (Grille 1 MOA à 100m / 29.1mm)', diameterMm: 232.8, label: 'MOA' }, // 8 MOA total width
-    'inch': { name: 'Grille 1 pouce (Total 8 pouces / 203.2mm)', diameterMm: 203.2, label: 'in' }
+let activeLang = 'fr';
+
+const I18N_CARNET = {
+    fr: {
+        // Headers & buttons
+        'logbook-main-title': 'Carnet de Tir Numérique',
+        'logbook-sub-title': 'Suivez vos armes, séances de tir et opérations d\'entretien. Fonctionne 100% hors-ligne et localement. Pour voir un exemple pré-rempli, visitez le <a href="/carnet-de-tir-exemple.php" style="text-decoration:underline; font-weight:500;">carnet d\'exemple</a>.',
+        'logbook-demo-badge': 'EXEMPLE',
+        'lbl-fullscreen': 'Plein écran',
+        'lbl-print-blank': 'Imprimer fiche vierge',
+        'lbl-new-session': 'Nouvelle séance',
+        
+        // Tabs
+        'lbl-tab-dashboard': 'Tableau de bord',
+        'lbl-tab-weapons': 'Mes Armes',
+        'lbl-tab-sessions': 'Séances',
+        'lbl-tab-maintenance': 'Entretien',
+        'lbl-tab-settings': 'Réglages & Sauvegarde',
+        
+        // Dashboard Stats
+        'lbl-stat-rounds': 'Coups tirés',
+        'lbl-stat-sessions': 'Séances',
+        'lbl-stat-weapons': 'Armes actives',
+        'lbl-stat-maint': 'Entretiens',
+        'lbl-title-chart': 'Volume de tir (6 derniers mois)',
+        'lbl-title-recent': 'Séances récentes',
+        
+        // Weapons tab
+        'lbl-add-weapon': 'Ajouter une arme',
+        
+        // Sessions tab
+        'lbl-filter-weapon': 'Arme :',
+        'opt-all-weapons': 'Toutes les armes',
+        'lbl-filter-stand': 'Stand / Lieu :',
+        'btn-reset-filters': 'Réinitialiser',
+        
+        // Maintenance tab
+        'lbl-add-maint': 'Ajouter un entretien',
+        
+        // Settings tab
+        'lbl-settings-title': 'Gestion locale des données',
+        'lbl-settings-desc': 'Toutes les données de ce carnet de tir sont stockées dans le stockage local de votre navigateur (LocalStorage). Aucune donnée n\'est envoyée vers nos serveurs. Pour éviter toute perte en cas de nettoyage du navigateur, nous vous conseillons d\'effectuer des sauvegardes régulières.',
+        'lbl-export-title': 'Exporter mes données',
+        'lbl-export-desc': 'Téléchargez un fichier de sauvegarde contenant toutes vos armes, séances et entretiens.',
+        'lbl-export-btn': 'Exporter au format JSON',
+        'lbl-import-title': 'Importer une sauvegarde',
+        'lbl-import-desc': 'Restaurez vos données ou fusionnez-les depuis un fichier précédemment exporté.',
+        'lbl-import-btn': 'Importer un fichier',
+        'lbl-danger-title': 'Zone de Danger',
+        'lbl-danger-desc': 'Cette action effacera définitivement l\'intégralité du carnet de tir (armes, tirs, entretiens) sur ce navigateur.',
+        'lbl-danger-btn': 'Réinitialiser le carnet de tir',
+        
+        // Weapon Modal
+        'lbl-w-name': 'Modèle / Nom de l\'arme *',
+        'lbl-w-caliber': 'Calibre *',
+        'lbl-w-barrel-length': 'Longueur de canon (pouces)',
+        'lbl-w-twist-rate': 'Pas de rayure (1:X pouces)',
+        'lbl-w-zero-distance': 'Distance de zéro (mètres)',
+        'lbl-w-optics': 'Lunette / Optique',
+        'lbl-w-count': 'Compteur initial (tirs antérieurs)',
+        'lbl-w-notes': 'Notes / Caractéristiques additionnelles',
+        'btn-w-cancel': 'Annuler',
+        'btn-w-save': 'Enregistrer',
+        
+        // Session Modal
+        'lbl-s-date': 'Date de la séance *',
+        'lbl-s-stand': 'Stand de tir / Lieu',
+        'lbl-s-weapon': 'Arme utilisée *',
+        'opt-s-select': '-- Sélectionner --',
+        'lbl-s-caliber': 'Calibre',
+        'lbl-s-sub-ammo': 'Munition & Balistique',
+        'lbl-s-ammo': 'Munition / Ogive',
+        'lbl-s-weight': 'Poids de balle (gr)',
+        'lbl-s-charge': 'Charge de poudre (gr)',
+        'lbl-s-velocity': 'Vitesse initiale mesurée (m/s)',
+        'lbl-s-sub-cond': 'Conditions & Résultats',
+        'lbl-s-distance': 'Distance (mètres) *',
+        'lbl-s-temp': 'Température ambiante (°C)',
+        'lbl-s-wind': 'Vitesse du vent (m/s)',
+        'lbl-s-notes': 'Notes additionnelles',
+        'lbl-plotter-title': 'Calculateur de dispersion interactif',
+        'lbl-plotter-hint': 'Cliquez sur la cible pour tracer vos impacts',
+        'lbl-plotter-undo': 'Annuler',
+        'lbl-plotter-clear': 'Tout effacer',
+        'lbl-plotter-preset': 'Type de cible / Échelle',
+        'lbl-stat-col-1': 'Impacts',
+        'lbl-stat-col-2': 'Dispersion (ES)',
+        'lbl-stat-col-3': 'Dispersion (MOA)',
+        'lbl-stat-col-4': 'Dispersion (MRAD)',
+        'lbl-stat-mpi': 'Point moyen d\'impact (MPI)',
+        'btn-s-cancel': 'Annuler',
+        
+        // Maintenance Modal
+        'lbl-m-date': 'Date de l\'opération *',
+        'lbl-m-weapon': 'Arme concernée *',
+        'opt-m-select': '-- Sélectionner --',
+        'lbl-m-type': 'Type d\'entretien *',
+        'opt-m-clean': 'Nettoyage standard',
+        'opt-m-piece': 'Changement de pièce',
+        'opt-m-breakin': 'Rodage canon',
+        'opt-m-other': 'Autre opération',
+        'lbl-m-count': 'Tir à l\'entretien (Round count)',
+        'lbl-m-desc': 'Description / Détails *',
+        'btn-m-cancel': 'Annuler',
+        'btn-m-save': 'Enregistrer',
+        
+        // Print Blank Modal
+        'lbl-p-title': 'Imprimer une fiche de tir vierge',
+        'lbl-p-desc': 'Sélectionnez le format de fiche de tir adapté à votre discipline ou entraînement.',
+        'lbl-p-type': 'Discipline / Format de la fiche :',
+        'opt-p-generic': 'Générique / Entraînement Standard (1 cible + table de 20 tirs)',
+        'opt-p-issf': 'Match ISSF - 60 coups (6 cibles x 10 coups + tableau de scores)',
+        'opt-p-tld': 'Tir Longue Distance - TLD (1 cible TLD + table balistique & clics)',
+        'btn-p-cancel': 'Annuler',
+        'btn-p-print': 'Imprimer',
+        
+        // Blank Sheet Template
+        'lbl-print-tpl-title': 'Carnet de Tir Numérique — Fiche de Séance',
+        'lbl-print-tpl-date': 'Date :',
+        'lbl-print-tpl-stand': 'Lieu / Stand :',
+        'lbl-print-tpl-weapon': 'Arme utilisée :',
+        'lbl-print-tpl-caliber': 'Calibre :',
+        'lbl-print-tpl-sub-ammo': 'Munition & Rechargement',
+        'lbl-print-tpl-ammo': 'Munition / Ogive :',
+        'lbl-print-tpl-weight': 'Poids de balle :',
+        'lbl-print-tpl-charge': 'Poudre / Charge :',
+        'lbl-print-tpl-velocity': 'Vitesse moyenne :',
+        'lbl-print-tpl-sub-cond': 'Conditions de tir',
+        'lbl-print-tpl-distance': 'Distance :',
+        'lbl-print-tpl-temp': 'Température :',
+        'lbl-print-tpl-wind': 'Vent :',
+        'lbl-print-tpl-sub-notes': 'Notes / Observations',
+        'lbl-print-tpl-target-title': 'Tracé des impacts',
+        'lbl-print-tpl-target-caption': 'Cible de réglage (C50 proportionnelle)',
+        
+        // Placeholders
+        'plh-w-name': 'Ex: Tikka T3x TAC A1, Glock 17...',
+        'plh-w-caliber': 'Ex: 6.5 Creedmoor, 9x19mm...',
+        'plh-w-barrel-length': 'Ex: 24, 4.5',
+        'plh-w-twist-rate': 'Ex: 8, 10',
+        'plh-w-zero-distance': 'Ex: 100, 25',
+        'plh-w-optics': 'Ex: Vortex Viper PST II 5-25x50',
+        'plh-w-notes': 'Poids de détente, rechargement favori, date d\'acquisition...',
+        'plh-s-stand': 'Ex: Stand de tir de Versailles',
+        'plh-s-caliber': 'Ex: 6.5 CM (autocomplété)',
+        'plh-s-ammo': 'Ex: Lapua Scenar 139gr, S&B 124gr',
+        'plh-s-weight': 'Ex: 139',
+        'plh-s-charge': 'Ex: 37.5',
+        'plh-s-velocity': 'Ex: 820',
+        'plh-s-temp': 'Ex: 18',
+        'plh-s-wind': 'Ex: 3',
+        'plh-s-notes': 'Sensations, réglages de clics effectués...',
+        'plh-m-count': 'Ex: 450 (facultatif)',
+        'plh-m-desc': 'Ex: Nettoyage complet au solvant, remplacement du ressort de rappel...',
+        'plh-filter-stand': 'Ex: CTF, Bordeaux...',
+        
+        // Informative banner
+        'lbl-demo-banner-title': 'Version de démonstration / Exemple complet',
+        'lbl-demo-banner-desc': 'Ce carnet de tir est pré-rempli avec des données fictives d\'exemples (armes, séances avec impacts sur cibles, et entretien) pour vous permettre de tester toutes les fonctionnalités (affichage plein écran, calculateur de dispersion, graphiques de statistiques, et export/import). Pour utiliser votre propre carnet de tir vide et sécurisé localement, accédez à la page <a href="/carnet-de-tir.php" style="font-weight:600; text-decoration: underline;">Carnet de tir personnel</a>.',
+
+        // JS strings
+        'js-weapon-unknown': 'Arme inconnue',
+        'js-empty-recent-sessions': 'Aucune session enregistrée pour le moment. Cliquez sur "Séances" pour en ajouter une.',
+        'js-empty-chart-history': 'Enregistrez des tirs pour visualiser l\'historique',
+        'js-empty-weapons-title': 'Aucune arme enregistrée',
+        'js-empty-weapons-desc': 'Commencez par ajouter votre première arme (carabine, pistolet) afin de pouvoir y associer vos séances de tir.',
+        'js-empty-sessions-title': 'Aucune séance de tir',
+        'js-empty-sessions-desc': 'Ajoutez votre première séance de tir pour enregistrer vos scores, conditions météo et dispersion de tirs.',
+        'js-empty-sessions-filter': 'Aucune séance ne correspond aux filtres de recherche.',
+        'js-empty-maint-title': 'Aucun entretien enregistré',
+        'js-empty-maint-desc': 'Consignez vos nettoyages de canons, changements de pièces et rodages pour chaque arme.',
+        'js-all-weapons': 'Toutes les armes',
+        'js-select-weapon': '-- Sélectionner --',
+        'js-weapon-canon': 'Canon',
+        'js-weapon-rayure': 'Rayure',
+        'js-weapon-zero': 'Zéro',
+        'js-weapon-tirs': 'Tirs (Round Count)',
+        'js-weapon-optique': 'Optique',
+        'js-weapon-edit': 'Éditer',
+        'js-weapon-delete': 'Supprimer',
+        'js-session-print': 'Imprimer cette séance',
+        'js-session-edit': 'Éditer',
+        'js-session-delete': 'Supprimer',
+        'js-session-stand': 'Stand de tir',
+        'js-session-weapon-caliber': 'Arme & Calibre',
+        'js-session-ammo-velocity': 'Munition & Vitesse',
+        'js-session-dist-conditions': 'Distance & Conditions',
+        'js-session-no-plotting': 'Aucun tracé',
+        'js-session-coups': 'coups',
+        'js-session-vent': 'vent',
+        'js-session-pas-de-vent': 'Pas de vent',
+        'js-maint-clean': 'Nettoyage',
+        'js-maint-piece': 'Changement de pièce',
+        'js-maint-breakin': 'Rodage canon',
+        'js-maint-other': 'Autre opération',
+        'js-maint-effectue-a': 'Effectué à',
+        'js-maint-tirs': 'tirs',
+        'js-confirm-delete-weapon': 'Êtes-vous sûr de vouloir supprimer l\'arme "{name}" ?',
+        'js-confirm-delete-weapon-warning': '\nAttention : cette arme est liée à {count} séance(s) de tir. Celles-ci ne seront pas supprimées mais référenceront une arme inconnue.',
+        'js-confirm-delete-session': 'Supprimer définitivement cette séance de tir ?',
+        'js-confirm-delete-maint': 'Supprimer cette entrée du registre d\'entretien ?',
+        'js-confirm-import-merge': 'Voulez-vous fusionner ces données avec vos données existantes ?\n(Cliquez sur Annuler pour écraser complètement votre base actuelle)',
+        'js-confirm-clear-db': 'ATTENTION : Cette action supprimera définitivement toutes vos données locales (armes, séances de tir et entretien).\nCette action est irréversible.\n\nVoulez-vous continuer ?',
+        'js-error-load': 'Erreur lors de la lecture des données locales.',
+        'js-error-save': 'Erreur lors de la sauvegarde des données.',
+        'js-success-weapon-update': 'Arme mise à jour avec succès.',
+        'js-success-weapon-new': 'Nouvelle arme enregistrée.',
+        'js-success-weapon-delete': 'Arme supprimée.',
+        'js-success-session-update': 'Séance de tir mise à jour.',
+        'js-success-session-new': 'Nouvelle séance enregistrée.',
+        'js-success-session-delete': 'Séance de tir supprimée.',
+        'js-success-maint-update': 'Opération d\'entretien mise à jour.',
+        'js-success-maint-new': 'Opération d\'entretien enregistrée.',
+        'js-success-maint-delete': 'Entrée d\'entretien supprimée.',
+        'js-success-export': 'Données exportées avec succès.',
+        'js-success-import-merge': 'Données fusionnées avec succès.',
+        'js-success-import-overwrite': 'Base de données écrasée et restaurée.',
+        'js-success-db-clear': 'Base de données réinitialisée.',
+        'js-error-weapon-req': 'Le nom et le calibre sont obligatoires.',
+        'js-error-session-req': 'La date et l\'arme sont obligatoires.',
+        'js-error-maint-req': 'Veuillez remplir tous les champs obligatoires (*).',
+    },
+    en: {
+        // Headers & buttons
+        'logbook-main-title': 'Digital Shooting Logbook',
+        'logbook-sub-title': 'Track your firearms, shooting sessions and maintenance log. Works 100% offline and locally. To view a pre-filled example, visit the <a href="/carnet-de-tir-exemple.php" style="text-decoration:underline; font-weight:500;">demo logbook</a>.',
+        'logbook-demo-badge': 'DEMO',
+        'lbl-fullscreen': 'Full screen',
+        'lbl-print-blank': 'Print blank sheet',
+        'lbl-new-session': 'New session',
+        
+        // Tabs
+        'lbl-tab-dashboard': 'Dashboard',
+        'lbl-tab-weapons': 'My Weapons',
+        'lbl-tab-sessions': 'Sessions',
+        'lbl-tab-maintenance': 'Maintenance',
+        'lbl-tab-settings': 'Settings & Backup',
+        
+        // Dashboard Stats
+        'lbl-stat-rounds': 'Rounds fired',
+        'lbl-stat-sessions': 'Sessions',
+        'lbl-stat-weapons': 'Active weapons',
+        'lbl-stat-maint': 'Maintenance logs',
+        'lbl-title-chart': 'Shooting volume (last 6 months)',
+        'lbl-title-recent': 'Recent sessions',
+        
+        // Weapons tab
+        'lbl-add-weapon': 'Add a weapon',
+        
+        // Sessions tab
+        'lbl-filter-weapon': 'Weapon:',
+        'opt-all-weapons': 'All weapons',
+        'lbl-filter-stand': 'Range / Location:',
+        'btn-reset-filters': 'Reset',
+        
+        // Maintenance tab
+        'lbl-add-maint': 'Add maintenance log',
+        
+        // Settings tab
+        'lbl-settings-title': 'Local Data Management',
+        'lbl-settings-desc': 'All data in this logbook is stored locally in your browser\'s LocalStorage. No data is sent to our servers. To prevent loss if you clear browser data, we recommend performing regular backups.',
+        'lbl-export-title': 'Export my data',
+        'lbl-export-desc': 'Download a backup file containing all your weapons, sessions, and maintenance logs.',
+        'lbl-export-btn': 'Export as JSON format',
+        'lbl-import-title': 'Import a backup',
+        'lbl-import-desc': 'Restore your data or merge them from a previously exported file.',
+        'lbl-import-btn': 'Import a file',
+        'lbl-danger-title': 'Danger Zone',
+        'lbl-danger-desc': 'This action will permanently delete the entire logbook (weapons, shots, maintenance) on this browser.',
+        'lbl-danger-btn': 'Reset shooting logbook',
+        
+        // Weapon Modal
+        'lbl-w-name': 'Model / Weapon Name *',
+        'lbl-w-caliber': 'Caliber *',
+        'lbl-w-barrel-length': 'Barrel Length (inches)',
+        'lbl-w-twist-rate': 'Twist Rate (1:X inches)',
+        'lbl-w-zero-distance': 'Zero Distance (meters)',
+        'lbl-w-optics': 'Scope / Optics',
+        'lbl-w-count': 'Initial Counter (previous shots)',
+        'lbl-w-notes': 'Notes / Additional Features',
+        'btn-w-cancel': 'Cancel',
+        'btn-w-save': 'Save',
+        
+        // Session Modal
+        'lbl-s-date': 'Session Date *',
+        'lbl-s-stand': 'Shooting Range / Location',
+        'lbl-s-weapon': 'Weapon Used *',
+        'opt-s-select': '-- Select --',
+        'lbl-s-caliber': 'Caliber',
+        'lbl-s-sub-ammo': 'Ammo & Ballistics',
+        'lbl-s-ammo': 'Ammo / Bullet',
+        'lbl-s-weight': 'Bullet Weight (gr)',
+        'lbl-s-charge': 'Powder Charge (gr)',
+        'lbl-s-velocity': 'Measured Initial Velocity (m/s)',
+        'lbl-s-sub-cond': 'Conditions & Results',
+        'lbl-s-distance': 'Distance (meters) *',
+        'lbl-s-temp': 'Ambient Temp (°C)',
+        'lbl-s-wind': 'Wind Speed (m/s)',
+        'lbl-s-notes': 'Additional Notes',
+        'lbl-plotter-title': 'Interactive Grouping Calculator',
+        'lbl-plotter-hint': 'Click on target to plot your impacts',
+        'lbl-plotter-undo': 'Undo',
+        'lbl-plotter-clear': 'Clear all',
+        'lbl-plotter-preset': 'Target type / Scale',
+        'lbl-stat-col-1': 'Impacts',
+        'lbl-stat-col-2': 'Grouping (ES)',
+        'lbl-stat-col-3': 'Grouping (MOA)',
+        'lbl-stat-col-4': 'Grouping (MRAD)',
+        'lbl-stat-mpi': 'Mean Point of Impact (MPI)',
+        'btn-s-cancel': 'Cancel',
+        
+        // Maintenance Modal
+        'lbl-m-date': 'Date of Operation *',
+        'lbl-m-weapon': 'Weapon Concerned *',
+        'opt-m-select': '-- Select --',
+        'lbl-m-type': 'Maintenance Type *',
+        'opt-m-clean': 'Standard Cleaning',
+        'opt-m-piece': 'Part Replacement',
+        'opt-m-breakin': 'Barrel Break-in',
+        'opt-m-other': 'Other Operation',
+        'lbl-m-count': 'Rounds at Maintenance (Round count)',
+        'lbl-m-desc': 'Description / Details *',
+        'btn-m-cancel': 'Cancel',
+        'btn-m-save': 'Save',
+        
+        // Print Blank Modal
+        'lbl-p-title': 'Print a Blank Shooting Sheet',
+        'lbl-p-desc': 'Select the shooting sheet format suited for your discipline or training.',
+        'lbl-p-type': 'Discipline / Sheet Format:',
+        'opt-p-generic': 'Generic / Standard Training (1 target + 20 shots table)',
+        'opt-p-issf': 'ISSF Match - 60 shots (6 targets x 10 shots + score table)',
+        'opt-p-tld': 'Long Range Shooting - LRS (1 target + ballistics & click table)',
+        'btn-p-cancel': 'Cancel',
+        'btn-p-print': 'Print',
+        
+        // Blank Sheet Template
+        'lbl-print-tpl-title': 'Digital Shooting Logbook — Session Sheet',
+        'lbl-print-tpl-date': 'Date:',
+        'lbl-print-tpl-stand': 'Range / Location:',
+        'lbl-print-tpl-weapon': 'Weapon Used:',
+        'lbl-print-tpl-caliber': 'Caliber:',
+        'lbl-print-tpl-sub-ammo': 'Ammo & Reloading',
+        'lbl-print-tpl-ammo': 'Ammo / Bullet:',
+        'lbl-print-tpl-weight': 'Bullet Weight:',
+        'lbl-print-tpl-charge': 'Powder / Charge:',
+        'lbl-print-tpl-velocity': 'Average Velocity:',
+        'lbl-print-tpl-sub-cond': 'Shooting Conditions',
+        'lbl-print-tpl-distance': 'Distance:',
+        'lbl-print-tpl-temp': 'Temperature:',
+        'lbl-print-tpl-wind': 'Wind:',
+        'lbl-print-tpl-sub-notes': 'Notes / Observations',
+        'lbl-print-tpl-target-title': 'Shot Plotting',
+        'lbl-print-tpl-target-caption': 'Sighting Target (Proportional C50)',
+        
+        // Placeholders
+        'plh-w-name': 'e.g., Tikka T3x TAC A1, Glock 17...',
+        'plh-w-caliber': 'e.g., 6.5 Creedmoor, 9x19mm...',
+        'plh-w-barrel-length': 'e.g., 24, 4.5',
+        'plh-w-twist-rate': 'e.g., 8, 10',
+        'plh-w-zero-distance': 'e.g., 100, 25',
+        'plh-w-optics': 'e.g., Vortex Viper PST II 5-25x50',
+        'plh-w-notes': 'Trigger weight, favorite reload, purchase date...',
+        'plh-s-stand': 'e.g., Versailles Shooting Range',
+        'plh-s-caliber': 'e.g., 6.5 CM (autofilled)',
+        'plh-s-ammo': 'e.g., Lapua Scenar 139gr, S&B 124gr',
+        'plh-s-weight': 'e.g., 139',
+        'plh-s-charge': 'e.g., 37.5',
+        'plh-s-velocity': 'e.g., 820',
+        'plh-s-temp': 'e.g., 18',
+        'plh-s-wind': 'e.g., 3',
+        'plh-s-notes': 'Feelings, click adjustments made...',
+        'plh-m-count': 'e.g., 450 (optional)',
+        'plh-m-desc': 'e.g., Complete cleaning with solvent, recoil spring replacement...',
+        'plh-filter-stand': 'e.g., CTF, Bordeaux...',
+        
+        // Informative banner
+        'lbl-demo-banner-title': 'Demo Version / Complete Example',
+        'lbl-demo-banner-desc': 'This logbook is pre-filled with mock demonstration data (weapons, sessions with targets, and maintenance) to let you test all functionalities (fullscreen mode, group calculator, statistics charts, and export/import). To use your own empty and locally secured logbook, go to the <a href="/carnet-de-tir.php" style="font-weight:600; text-decoration: underline;">Personal Shooting Logbook</a> page.',
+
+        // JS strings
+        'js-weapon-unknown': 'Unknown Weapon',
+        'js-empty-recent-sessions': 'No sessions recorded yet. Click on "Sessions" to add one.',
+        'js-empty-chart-history': 'Record shots to visualize history',
+        'js-empty-weapons-title': 'No weapons registered',
+        'js-empty-weapons-desc': 'Start by adding your first weapon (rifle, handgun) to associate your shooting sessions.',
+        'js-empty-sessions-title': 'No shooting sessions',
+        'js-empty-sessions-desc': 'Add your first shooting session to record your scores, weather conditions, and grouping.',
+        'js-empty-sessions-filter': 'No sessions match the search filters.',
+        'js-empty-maint-title': 'No maintenance logs recorded',
+        'js-empty-maint-desc': 'Log barrel cleanings, parts replacements, and break-ins for each weapon.',
+        'js-all-weapons': 'All Weapons',
+        'js-select-weapon': '-- Select --',
+        'js-weapon-canon': 'Barrel',
+        'js-weapon-rayure': 'Twist',
+        'js-weapon-zero': 'Zero',
+        'js-weapon-tirs': 'Rounds (Round Count)',
+        'js-weapon-optique': 'Optics',
+        'js-weapon-edit': 'Edit',
+        'js-weapon-delete': 'Delete',
+        'js-session-print': 'Print this session',
+        'js-session-edit': 'Edit',
+        'js-session-delete': 'Delete',
+        'js-session-stand': 'Shooting Range',
+        'js-session-weapon-caliber': 'Weapon & Caliber',
+        'js-session-ammo-velocity': 'Ammo & Velocity',
+        'js-session-dist-conditions': 'Distance & Conditions',
+        'js-session-no-plotting': 'No plotting',
+        'js-session-coups': 'shots',
+        'js-session-vent': 'wind',
+        'js-session-pas-de-vent': 'No wind',
+        'js-maint-clean': 'Cleaning',
+        'js-maint-piece': 'Part Replacement',
+        'js-maint-breakin': 'Barrel Break-in',
+        'js-maint-other': 'Other Operation',
+        'js-maint-effectue-a': 'Performed at',
+        'js-maint-tirs': 'shots',
+        'js-confirm-delete-weapon': 'Are you sure you want to delete the weapon "{name}"?',
+        'js-confirm-delete-weapon-warning': '\nWarning: this weapon is linked to {count} shooting session(s). These will not be deleted but will reference an unknown weapon.',
+        'js-confirm-delete-session': 'Permanently delete this shooting session?',
+        'js-confirm-delete-maint': 'Delete this maintenance log entry?',
+        'js-confirm-import-merge': 'Do you want to merge this data with your existing data?\n(Click Cancel to completely overwrite your current database)',
+        'js-confirm-clear-db': 'WARNING: This action will permanently delete all your local data (weapons, shooting sessions, and maintenance).\nThis action is irreversible.\n\nDo you want to continue?',
+        'js-error-load': 'Error reading local data.',
+        'js-error-save': 'Error saving data.',
+        'js-success-weapon-update': 'Weapon updated successfully.',
+        'js-success-weapon-new': 'New weapon registered.',
+        'js-success-weapon-delete': 'Weapon deleted.',
+        'js-success-session-update': 'Shooting session updated.',
+        'js-success-session-new': 'New session registered.',
+        'js-success-session-delete': 'Shooting session deleted.',
+        'js-success-maint-update': 'Maintenance operation updated.',
+        'js-success-maint-new': 'Maintenance operation recorded.',
+        'js-success-maint-delete': 'Maintenance entry deleted.',
+        'js-success-export': 'Data successfully exported.',
+        'js-success-import-merge': 'Data successfully merged.',
+        'js-success-import-overwrite': 'Database overwritten and restored.',
+        'js-success-db-clear': 'Database reset.',
+        'js-error-weapon-req': 'Name and caliber are required.',
+        'js-error-session-req': 'Date and weapon are required.',
+        'js-error-maint-req': 'Please fill out all required fields (*).',
+    }
 };
+
+function updateAppLanguage(lang) {
+    activeLang = lang;
+    localStorage.setItem('calibers_lang', lang);
+    
+    // Update local lang buttons UI
+    const btnFr = document.getElementById('lang-btn-fr');
+    const btnEn = document.getElementById('lang-btn-en');
+    if (btnFr && btnEn) {
+        if (lang === 'fr') {
+            btnFr.classList.add('active');
+            btnEn.classList.remove('active');
+        } else {
+            btnEn.classList.add('active');
+            btnFr.classList.remove('active');
+        }
+    }
+    
+    if (typeof setTargetLanguage === 'function') {
+        setTargetLanguage(lang);
+    }
+    
+    const translations = I18N_CARNET[lang];
+    if (!translations) return;
+    
+    for (let id in translations) {
+        const el = document.getElementById(id);
+        if (el) {
+            // Check if option
+            if (el.tagName === 'OPTION') {
+                el.text = translations[id];
+            } else {
+                // If button or text with child span
+                const labelSpan = el.querySelector('span');
+                if (labelSpan) {
+                    labelSpan.innerHTML = translations[id];
+                } else {
+                    el.innerHTML = translations[id];
+                }
+            }
+        }
+    }
+    
+    // Set placeholders
+    const setPlaceholder = (id, key) => {
+        const el = document.getElementById(id);
+        if (el && translations[key]) {
+            el.placeholder = translations[key];
+        }
+    };
+    
+    setPlaceholder('w_name', 'plh-w-name');
+    setPlaceholder('w_caliber', 'plh-w-caliber');
+    setPlaceholder('w_barrel_length', 'plh-w-barrel-length');
+    setPlaceholder('w_twist_rate', 'plh-w-twist-rate');
+    setPlaceholder('w_zero_distance', 'plh-w-zero-distance');
+    setPlaceholder('w_optics', 'plh-w-optics');
+    setPlaceholder('w_notes', 'plh-w-notes');
+    setPlaceholder('s_stand', 'plh-s-stand');
+    setPlaceholder('s_caliber', 'plh-s-caliber');
+    setPlaceholder('s_ammo', 'plh-s-ammo');
+    setPlaceholder('s_bullet_weight', 'plh-s-weight');
+    setPlaceholder('s_powder_charge', 'plh-s-charge');
+    setPlaceholder('s_velocity', 'plh-s-velocity');
+    setPlaceholder('s_temp', 'plh-s-temp');
+    setPlaceholder('s_wind', 'plh-s-wind');
+    setPlaceholder('s_notes', 'plh-s-notes');
+    setPlaceholder('m_round_count', 'plh-m-count');
+    setPlaceholder('m_description', 'plh-m-desc');
+    setPlaceholder('filter_stand', 'plh-filter-stand');
+
+    // Translate target presets select
+    const targetPresetSelect = document.getElementById('target_preset');
+    if (targetPresetSelect) {
+        const presetNames = {
+            fr: {
+                'issf_50m': 'C50 (50m Carabine)',
+                'c200': 'C200 (200m Carabine - Visuel 400mm)',
+                'issf_10m': 'ISSF 10m Pistolet',
+                'issf_10m_rifle': 'ISSF 10m Carabine',
+                'issf_25m_precision': 'ISSF 25m Pistolet Précision',
+                'issf_25m_rapid': 'ISSF 25m Pistolet Tir Rapide',
+                'issf_50m_pistol': 'ISSF 50m Pistolet Libre',
+                'issf_300m': 'ISSF 300m Carabine',
+                'biathlon_prone': 'Biathlon Couché (50m)',
+                'biathlon_standing': 'Biathlon Debout (50m)',
+                'ipsc': 'IPSC Classic Silhouette',
+                'idpa': 'IDPA Silhouette',
+                'field_target': 'Field Target',
+                'standard_rings': 'Cible standard 180mm',
+                'grouping': 'Cible de Groupement',
+                'moa': 'Grille 1 MOA @ 100m',
+                'inch': 'Grille 1 pouce (8" total)'
+            },
+            en: {
+                'issf_50m': 'C50 (50m Rifle)',
+                'c200': 'C200 (200m Rifle - 400mm Center)',
+                'issf_10m': 'ISSF 10m Pistol',
+                'issf_10m_rifle': 'ISSF 10m Rifle',
+                'issf_25m_precision': 'ISSF 25m Pistol Precision',
+                'issf_25m_rapid': 'ISSF 25m Pistol Rapid Fire',
+                'issf_50m_pistol': 'ISSF 50m Pistol Free',
+                'issf_300m': 'ISSF 300m Rifle',
+                'biathlon_prone': 'Biathlon Prone (50m)',
+                'biathlon_standing': 'Biathlon Standing (50m)',
+                'ipsc': 'IPSC Classic Silhouette',
+                'idpa': 'IDPA Silhouette',
+                'field_target': 'Field Target',
+                'standard_rings': 'Standard Target 180mm',
+                'grouping': 'Grouping Target',
+                'moa': '1 MOA @ 100m Grid',
+                'inch': '1 Inch Grid (8" total)'
+            }
+        };
+        Array.from(targetPresetSelect.options).forEach(opt => {
+            if (presetNames[lang] && presetNames[lang][opt.value]) {
+                opt.text = presetNames[lang][opt.value];
+            }
+        });
+    }
+
+    // Translate print blank type select
+    const printBlankTypeSelect = document.getElementById('print_blank_type');
+    if (printBlankTypeSelect) {
+        const typeNames = {
+            fr: {
+                'generic': 'Générique / Entraînement Standard (1 cible + table de 20 tirs)',
+                'issf': 'Match ISSF - 60 coups (6 cibles x 10 coups + tableau de scores)',
+                'tld': 'Tir Longue Distance - TLD (1 cible TLD + table balistique & clics)'
+            },
+            en: {
+                'generic': 'Generic / Standard Training (1 target + 20 shots table)',
+                'issf': 'ISSF Match - 60 shots (6 targets x 10 shots + score table)',
+                'tld': 'Long Range Shooting - LRS (1 target + ballistics & click table)'
+            }
+        };
+        Array.from(printBlankTypeSelect.options).forEach(opt => {
+            if (typeNames[lang] && typeNames[lang][opt.value]) {
+                opt.text = typeNames[lang][opt.value];
+            }
+        });
+    }
+}
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('calibers_lang') || 'fr';
+    updateAppLanguage(savedLang);
     loadData();
     initCaliberDatalist();
     initEventListeners();
     renderAll();
 });
+
 
 // Caliber Database Integration
 function initCaliberDatalist() {
@@ -97,7 +678,8 @@ function loadData() {
         state.maintenance = JSON.parse(localStorage.getItem('tireur_maintenance')) || [];
     } catch (e) {
         console.error("Error reading LocalStorage", e);
-        showNotification("Erreur lors de la lecture des données locales.", "error");
+        const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+        showNotification(trans['js-error-load'], "error");
     }
 }
 
@@ -112,7 +694,8 @@ function saveData() {
         localStorage.setItem('tireur_maintenance', JSON.stringify(state.maintenance));
     } catch (e) {
         console.error("Error saving to LocalStorage", e);
-        showNotification("Erreur lors de la sauvegarde des données.", "error");
+        const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+        showNotification(trans['js-error-save'], "error");
     }
 }
 
@@ -286,6 +869,20 @@ function switchTab(tabId) {
 
 // Setup Event Listeners
 function initEventListeners() {
+    // Language buttons click
+    const btnFr = document.getElementById('lang-btn-fr');
+    const btnEn = document.getElementById('lang-btn-en');
+    if (btnFr && btnEn) {
+        btnFr.addEventListener('click', () => {
+            updateAppLanguage('fr');
+            renderAll();
+        });
+        btnEn.addEventListener('click', () => {
+            updateAppLanguage('en');
+            renderAll();
+        });
+    }
+
     // Tabs click
     document.querySelectorAll('.logbook-tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -636,6 +1233,7 @@ function getTargetSpecification(presetKey) {
     if (key === 'c50') key = 'issf_50m';
     
     const hasGen = (typeof window.ISSF !== 'undefined');
+    const currentTargetLang = activeLang;
     
     if (key === 'c200') {
         const base = (hasGen && window.ISSF['issf_50m']) || {
@@ -651,7 +1249,7 @@ function getTargetSpecification(presetKey) {
             diams: base.diams.map(d => d * 2),
             black: base.black * 2,
             innerTen: base.innerTen * 2,
-            name: 'C200 (Cible 200m - Visuel 400mm)',
+            name: currentTargetLang === 'en' ? 'C200 (200m Rifle - 400mm Center)' : 'C200 (Cible 200m - Visuel 400mm)',
             diameterMm: base.diams[0] * 2 * 1.15
         };
     }
@@ -659,19 +1257,31 @@ function getTargetSpecification(presetKey) {
     if (hasGen && window.ISSF && window.ISSF[key]) {
         const spec = window.ISSF[key];
         let name = key;
-        if (window.I18N && window.I18N['fr'] && window.I18N['fr'][spec.titleKey]) {
-            name = window.I18N['fr'][spec.titleKey];
+        if (window.I18N && window.I18N[currentTargetLang] && window.I18N[currentTargetLang][spec.titleKey]) {
+            name = window.I18N[currentTargetLang][spec.titleKey];
         } else {
             const names = {
-                issf_50m: 'ISSF 50m Carabine (C50)',
-                issf_10m: 'ISSF 10m Pistolet',
-                issf_10m_rifle: 'ISSF 10m Carabine',
-                issf_25m_precision: 'ISSF 25m Pistolet Précision',
-                issf_25m_rapid: 'ISSF 25m Pistolet Vitesse',
-                issf_50m_pistol: 'ISSF 50m Pistolet Libre',
-                issf_300m: 'ISSF 300m Carabine'
+                fr: {
+                    issf_50m: 'ISSF 50m Carabine (C50)',
+                    issf_10m: 'ISSF 10m Pistolet',
+                    issf_10m_rifle: 'ISSF 10m Carabine',
+                    issf_25m_precision: 'ISSF 25m Pistolet Précision',
+                    issf_25m_rapid: 'ISSF 25m Pistolet Vitesse',
+                    issf_50m_pistol: 'ISSF 50m Pistolet Libre',
+                    issf_300m: 'ISSF 300m Carabine'
+                },
+                en: {
+                    issf_50m: 'ISSF 50m Rifle (C50)',
+                    issf_10m: 'ISSF 10m Pistol',
+                    issf_10m_rifle: 'ISSF 10m Rifle',
+                    issf_25m_precision: 'ISSF 25m Pistol Precision',
+                    issf_25m_rapid: 'ISSF 25m Pistol Rapid Fire',
+                    issf_50m_pistol: 'ISSF 50m Pistol Free',
+                    issf_300m: 'ISSF 300m Rifle'
+                }
             };
-            name = names[key] || key;
+            const langKey = names[currentTargetLang] ? currentTargetLang : 'fr';
+            name = names[langKey][key] || key;
         }
         return {
             ...spec,
@@ -683,7 +1293,9 @@ function getTargetSpecification(presetKey) {
     
     if (hasGen && window.BIATHLON && window.BIATHLON[key]) {
         const spec = window.BIATHLON[key];
-        const name = key === 'biathlon_prone' ? 'Biathlon Couché (Ø45/115mm)' : 'Biathlon Debout (Ø115mm)';
+        const name = key === 'biathlon_prone' 
+            ? (currentTargetLang === 'en' ? 'Biathlon Prone (Ø45/115mm)' : 'Biathlon Couché (Ø45/115mm)')
+            : (currentTargetLang === 'en' ? 'Biathlon Standing (Ø115mm)' : 'Biathlon Debout (Ø115mm)');
         return {
             isBiathlon: true,
             spec: spec,
@@ -694,7 +1306,9 @@ function getTargetSpecification(presetKey) {
     
     if (hasGen && window.SILHOUETTE && window.SILHOUETTE[key]) {
         const spec = window.SILHOUETTE[key];
-        const name = key === 'ipsc' ? 'Silhouette IPSC Classic' : 'Silhouette IDPA';
+        const name = key === 'ipsc' 
+            ? (currentTargetLang === 'en' ? 'IPSC Classic Silhouette' : 'Silhouette IPSC Classic')
+            : (currentTargetLang === 'en' ? 'IDPA Silhouette' : 'Silhouette IDPA');
         return {
             isSilhouette: true,
             spec: spec,
@@ -707,7 +1321,7 @@ function getTargetSpecification(presetKey) {
         return {
             isFieldTarget: true,
             killZone: 40,
-            name: 'Field Target (Kill Zone Ø40mm)',
+            name: currentTargetLang === 'en' ? 'Field Target (Kill Zone Ø40mm)' : 'Field Target (Kill Zone Ø40mm)',
             diameterMm: 70 * 1.15
         };
     }
@@ -715,7 +1329,7 @@ function getTargetSpecification(presetKey) {
     if (key === 'standard_rings') {
         return {
             isStandardRings: true,
-            name: 'Cible Loisir 180mm',
+            name: currentTargetLang === 'en' ? 'Standard Target 180mm' : 'Cible Loisir 180mm',
             diameterMm: 180 * 1.15
         };
     }
@@ -723,7 +1337,7 @@ function getTargetSpecification(presetKey) {
     if (key === 'grouping') {
         return {
             isGrouping: true,
-            name: 'Cible de Groupement',
+            name: currentTargetLang === 'en' ? 'Grouping Target' : 'Cible de Groupement',
             diameterMm: 70 * 1.15
         };
     }
@@ -734,17 +1348,17 @@ function getTargetSpecification(presetKey) {
             unit: 'MOA',
             mmPerUnit: 29.0888,
             diameterMm: 29.0888 * 8,
-            name: 'Grille 1 MOA @ 100m'
+            name: currentTargetLang === 'en' ? '1 MOA @ 100m Grid' : 'Grille 1 MOA @ 100m'
         };
     }
     
     if (key === 'inch') {
         return {
             isGrid: true,
-            unit: 'pouce',
+            unit: currentTargetLang === 'en' ? 'inch' : 'pouce',
             mmPerUnit: 25.4,
             diameterMm: 25.4 * 8,
-            name: 'Grille 1 pouce (8" total)'
+            name: currentTargetLang === 'en' ? '1 Inch Grid (8" total)' : 'Grille 1 pouce (8" total)'
         };
     }
     
@@ -1022,7 +1636,7 @@ function renderDashboardRecentSessions() {
     if (!listDiv) return;
     
     if (state.sessions.length === 0) {
-        listDiv.innerHTML = `<p style="color:var(--color-text-light);font-style:italic;">Aucune session enregistrée pour le moment. Cliquez sur "Séances" pour en ajouter une.</p>`;
+        listDiv.innerHTML = `<p style="color:var(--color-text-light);font-style:italic;">${I18N_CARNET[activeLang]['js-empty-recent-sessions']}</p>`;
         return;
     }
     
@@ -1032,16 +1646,19 @@ function renderDashboardRecentSessions() {
     let html = '<div style="display:flex;flex-direction:column;gap:0.75rem;">';
     sorted.forEach(s => {
         const weapon = state.weapons.find(w => w.id === s.weaponId);
-        const weaponName = weapon ? weapon.name : 'Arme inconnue';
+        const weaponName = weapon ? weapon.name : I18N_CARNET[activeLang]['js-weapon-unknown'];
+        const shotsLabel = I18N_CARNET[activeLang]['js-session-coups'];
+        const groupLabel = activeLang === 'fr' ? 'Dispersion' : 'Grouping';
+        const detailsBtnLabel = activeLang === 'fr' ? 'Détails' : 'Details';
         html += `
             <div style="padding:0.75rem; border-left:3px solid var(--color-accent); background:var(--color-bg); border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
                     <strong style="color:var(--color-text);">${formatDate(s.date)}</strong> &mdash; <span style="font-size:0.9rem;">${weaponName}</span>
                     <div style="font-size:0.8rem; color:var(--color-text-light); margin-top:0.15rem;">
-                        ${s.stand ? s.stand + ' &bull; ' : ''}${s.distance}m &bull; ${s.roundsFired} coups &bull; Dispersion: <strong>${s.groupSize} mm</strong>
+                        ${s.stand ? s.stand + ' &bull; ' : ''}${s.distance}m &bull; ${s.roundsFired} ${shotsLabel} &bull; ${groupLabel}: <strong>${s.groupSize} mm</strong>
                     </div>
                 </div>
-                <button type="button" class="btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="switchTab('sessions')">Détails</button>
+                <button type="button" class="btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="switchTab('sessions')">${detailsBtnLabel}</button>
             </div>
         `;
     });
@@ -1055,13 +1672,15 @@ function renderDashboardChart() {
     if (!chartDiv) return;
     
     if (state.sessions.length === 0) {
-        chartDiv.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-text-light);font-style:italic;">Enregistrez des tirs pour visualiser l'historique</div>`;
+        chartDiv.innerHTML = `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--color-text-light);font-style:italic;">${I18N_CARNET[activeLang]['js-empty-chart-history']}</div>`;
         return;
     }
     
     // Group rounds fired by month/year
     const monthlyData = {};
-    const monthsName = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const monthsName = activeLang === 'fr' 
+        ? ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
+        : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     
     // Get last 6 months list dynamically
     const now = new Date();
@@ -1139,12 +1758,13 @@ function renderDashboardChart() {
     `;
     
     // Data Dots
+    const roundsUnit = activeLang === 'fr' ? 'cartouches' : 'rounds';
     chartPoints.forEach((val, i) => {
         const x = padding.left + i * xStep;
         const y = padding.top + chartH - (val / maxVal) * chartH;
         svg += `
             <circle cx="${x}" cy="${y}" r="5" class="chart-dot">
-                <title>${activeMonths[i].label}: ${val} cartouches</title>
+                <title>${activeMonths[i].label}: ${val} ${roundsUnit}</title>
             </circle>
         `;
     });
@@ -1158,14 +1778,16 @@ function renderWeapons() {
     const grid = document.getElementById('weapons_grid');
     if (!grid) return;
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    
     if (state.weapons.length === 0) {
         grid.className = 'empty-state';
         grid.style.display = 'block';
         grid.innerHTML = `
             <span class="empty-state-icon"><i class="li-target"></i></span>
-            <h4>Aucune arme enregistrée</h4>
-            <p>Commencez par ajouter votre première arme (carabine, pistolet) afin de pouvoir y associer vos séances de tir.</p>
-            <button type="button" class="btn-primary" onclick="openWeaponModal()"><i class="li-plus"></i> Ajouter une arme</button>
+            <h4>${trans['js-empty-weapons-title']}</h4>
+            <p>${trans['js-empty-weapons-desc']}</p>
+            <button type="button" class="btn-primary" onclick="openWeaponModal()"><i class="li-plus"></i> ${trans['lbl-add-weapon']}</button>
         `;
         return;
     }
@@ -1188,16 +1810,16 @@ function renderWeapons() {
                     <span class="weapon-caliber">${renderCaliberDbLink(w.caliber)}</span>
                 </div>
                 <div class="weapon-details">
-                    <span>Canon: <strong>${w.barrelLength || '-'} "</strong></span>
-                    <span>Rayure: <strong>1:${w.twistRate || '-'} "</strong></span>
-                    <span>Zéro: <strong>${w.zeroDistance || '-'} m</strong></span>
-                    <span>Tirs (Round Count): <strong style="color:var(--color-accent);">${weaponRounds}</strong></span>
-                    <span style="grid-column:1/-1;">Optique: <strong>${escapeHTML(w.optics) || '-'}</strong></span>
+                    <span>${trans['js-weapon-canon']}: <strong>${w.barrelLength || '-'} "</strong></span>
+                    <span>${trans['js-weapon-rayure']}: <strong>1:${w.twistRate || '-'} "</strong></span>
+                    <span>${trans['js-weapon-zero']}: <strong>${w.zeroDistance || '-'} m</strong></span>
+                    <span>${trans['js-weapon-tirs']}: <strong style="color:var(--color-accent);">${weaponRounds}</strong></span>
+                    <span style="grid-column:1/-1;">${trans['js-weapon-optique']}: <strong>${escapeHTML(w.optics) || '-'}</strong></span>
                 </div>
                 ${w.notes ? `<div style="font-size:0.8rem; color:var(--color-text-light); margin-bottom:0.75rem; border-top:1px dashed var(--color-border); padding-top:0.5rem; font-style:italic;">${escapeHTML(w.notes)}</div>` : ''}
                 <div class="weapon-actions">
-                    <button type="button" class="btn-icon" title="Éditer" onclick="openWeaponModal('${w.id}')"><i class="li-pencil"></i></button>
-                    <button type="button" class="btn-icon btn-danger" title="Supprimer" onclick="deleteWeapon('${w.id}')"><i class="li-trash"></i></button>
+                    <button type="button" class="btn-icon" title="${trans['js-weapon-edit']}" onclick="openWeaponModal('${w.id}')"><i class="li-pencil"></i></button>
+                    <button type="button" class="btn-icon btn-danger" title="${trans['js-weapon-delete']}" onclick="deleteWeapon('${w.id}')"><i class="li-trash"></i></button>
                 </div>
             </div>
         `;
@@ -1215,13 +1837,15 @@ function renderSessions() {
     const listDiv = document.getElementById('sessions_list');
     if (!listDiv) return;
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    
     if (state.sessions.length === 0) {
         listDiv.className = 'empty-state';
         listDiv.innerHTML = `
             <span class="empty-state-icon"><i class="li-file-text"></i></span>
-            <h4>Aucune séance de tir</h4>
-            <p>Ajoutez votre première séance de tir pour enregistrer vos scores, conditions météo et dispersion de tirs.</p>
-            <button type="button" class="btn-primary" onclick="openSessionModal()"><i class="li-plus"></i> Enregistrer une séance</button>
+            <h4>${trans['js-empty-sessions-title']}</h4>
+            <p>${trans['js-empty-sessions-desc']}</p>
+            <button type="button" class="btn-primary" onclick="openSessionModal()"><i class="li-plus"></i> ${trans['lbl-new-session']}</button>
         `;
         return;
     }
@@ -1243,28 +1867,28 @@ function renderSessions() {
     }
     
     if (filtered.length === 0) {
-        listDiv.innerHTML = `<div class="empty-state"><h4>Aucune séance ne correspond aux filtres de recherche.</h4></div>`;
+        listDiv.innerHTML = `<div class="empty-state"><h4>${trans['js-empty-sessions-filter']}</h4></div>`;
         return;
     }
     
     let html = '';
     filtered.forEach(s => {
         const weapon = state.weapons.find(w => w.id === s.weaponId);
-        const weaponName = weapon ? weapon.name : 'Arme inconnue';
+        const weaponName = weapon ? weapon.name : trans['js-weapon-unknown'];
         
         // Generate impacts preview HTML using target generator SVG representation
         let previewHtml = '';
         if (s.impacts && s.impacts.length > 0) {
             const targetSVG = generateTargetSVG(s.targetPreset || 'issf_50m', 140, s.impacts, s.mpi, false, 0, false);
             previewHtml += `<div class="session-target-preview-svg">${targetSVG}</div>`;
-            previewHtml += `<div class="session-target-stats">${s.roundsFired} coups &bull; ES: ${s.groupSize} mm</div>`;
+            previewHtml += `<div class="session-target-stats">${s.roundsFired} ${trans['js-session-coups']} &bull; ES: ${s.groupSize} mm</div>`;
         } else {
             previewHtml += `
                 <div class="session-target-preview" style="background:#222;display:flex;align-items:center;justify-content:center;color:#666;font-size:0.75rem;flex-direction:column;border-color:#333;">
                     <i class="li-ban" style="font-size:1.8rem;margin-bottom:0.3rem;"></i>
-                    Aucun tracé
+                    ${trans['js-session-no-plotting']}
                 </div>
-                <div class="session-target-stats">${s.roundsFired} coups &bull; Gr: ${s.groupSize} mm</div>
+                <div class="session-target-stats">${s.roundsFired} ${trans['js-session-coups']} &bull; ${activeLang === 'en' ? 'Group' : 'Gr'}: ${s.groupSize} mm</div>
             `;
         }
         
@@ -1273,28 +1897,28 @@ function renderSessions() {
                 <div class="session-header">
                     <div class="session-title-block">
                         <span class="session-date">${formatDate(s.date)}</span>
-                        <span class="session-stand"><i class="li-target"></i> ${escapeHTML(s.stand) || 'Stand de tir'}</span>
+                        <span class="session-stand"><i class="li-target"></i> ${escapeHTML(s.stand) || trans['js-session-stand']}</span>
                     </div>
                     <div class="noprint" style="display:flex;gap:0.4rem;">
-                        <button type="button" class="btn-icon" title="Imprimer cette séance" onclick="printSession('${s.id}')"><i class="li-printer"></i></button>
-                        <button type="button" class="btn-icon" title="Éditer" onclick="openSessionModal('${s.id}')"><i class="li-pencil"></i></button>
-                        <button type="button" class="btn-icon btn-danger" title="Supprimer" onclick="deleteSession('${s.id}')"><i class="li-trash"></i></button>
+                        <button type="button" class="btn-icon" title="${trans['js-session-print']}" onclick="printSession('${s.id}')"><i class="li-printer"></i></button>
+                        <button type="button" class="btn-icon" title="${trans['js-session-edit']}" onclick="openSessionModal('${s.id}')"><i class="li-pencil"></i></button>
+                        <button type="button" class="btn-icon btn-danger" title="${trans['js-session-delete']}" onclick="deleteSession('${s.id}')"><i class="li-trash"></i></button>
                     </div>
                 </div>
                 
                 <div class="session-grid">
                     <div class="session-info-column">
                         <div class="session-info-block">
-                            <h5>Arme &amp; Calibre</h5>
+                            <h5>${trans['js-session-weapon-caliber']}</h5>
                             <p><strong>${escapeHTML(weaponName)}</strong><br><span style="font-size:0.8rem;color:var(--color-text-light);">${renderCaliberDbLink(s.caliber)}</span></p>
                         </div>
                         <div class="session-info-block">
-                            <h5>Munition &amp; Vitesse</h5>
-                            <p>${escapeHTML(s.ammo) || 'N/A'}<br><span style="font-size:0.8rem;color:var(--color-text-light);">${s.bulletWeight ? s.bulletWeight+'gr &bull; ' : ''}${s.powderCharge ? s.powderCharge+'gr poudre &bull; ' : ''}${s.velocity ? s.velocity+'m/s' : ''}</span></p>
+                            <h5>${trans['js-session-ammo-velocity']}</h5>
+                            <p>${escapeHTML(s.ammo) || 'N/A'}<br><span style="font-size:0.8rem;color:var(--color-text-light);">${s.bulletWeight ? s.bulletWeight+'gr &bull; ' : ''}${s.powderCharge ? s.powderCharge+'gr ' + (activeLang === 'en' ? 'powder' : 'poudre') + ' &bull; ' : ''}${s.velocity ? s.velocity+'m/s' : ''}</span></p>
                         </div>
                         <div class="session-info-block">
-                            <h5>Distance &amp; Conditions</h5>
-                            <p>${s.distance} m<br><span style="font-size:0.8rem;color:var(--color-text-light);">${s.temp ? s.temp+'°C &bull; ' : ''}${s.wind ? s.wind+'m/s vent' : 'Pas de vent'}</span></p>
+                            <h5>${trans['js-session-dist-conditions']}</h5>
+                            <p>${s.distance} m<br><span style="font-size:0.8rem;color:var(--color-text-light);">${s.temp ? s.temp+'°C &bull; ' : ''}${s.wind ? s.wind+'m/s ' + trans['js-session-vent'] : trans['js-session-pas-de-vent']}</span></p>
                         </div>
                         ${s.notes ? `<div class="session-notes">${escapeHTML(s.notes).replace(/\n/g, '<br>')}</div>` : ''}
                     </div>
@@ -1314,13 +1938,15 @@ function renderMaintenance() {
     const listDiv = document.getElementById('maint_list');
     if (!listDiv) return;
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    
     if (state.maintenance.length === 0) {
         listDiv.className = 'empty-state';
         listDiv.innerHTML = `
             <span class="empty-state-icon"><i class="li-clock"></i></span>
-            <h4>Aucun entretien enregistré</h4>
-            <p>Consignez vos nettoyages de canons, changements de pièces et rodages pour chaque arme.</p>
-            <button type="button" class="btn-primary" onclick="openMaintModal()"><i class="li-plus"></i> Ajouter un entretien</button>
+            <h4>${trans['js-empty-maint-title']}</h4>
+            <p>${trans['js-empty-maint-desc']}</p>
+            <button type="button" class="btn-primary" onclick="openMaintModal()"><i class="li-plus"></i> ${trans['lbl-add-maint']}</button>
         `;
         return;
     }
@@ -1333,13 +1959,13 @@ function renderMaintenance() {
     let html = '';
     sorted.forEach(m => {
         const weapon = state.weapons.find(w => w.id === m.weaponId);
-        const weaponName = weapon ? weapon.name : 'Arme inconnue';
+        const weaponName = weapon ? weapon.name : trans['js-weapon-unknown'];
         
         let typeLabel = m.type;
-        if (m.type === 'nettoyage') typeLabel = 'Nettoyage';
-        else if (m.type === 'piece') typeLabel = 'Changement de pièce';
-        else if (m.type === 'rodage') typeLabel = 'Rodage canon';
-        else if (m.type === 'autre') typeLabel = 'Autre opération';
+        if (m.type === 'nettoyage') typeLabel = trans['js-maint-clean'];
+        else if (m.type === 'piece') typeLabel = trans['js-maint-piece'];
+        else if (m.type === 'rodage') typeLabel = trans['js-maint-breakin'];
+        else if (m.type === 'autre') typeLabel = trans['js-maint-other'];
         
         html += `
             <div class="maintenance-item">
@@ -1348,12 +1974,12 @@ function renderMaintenance() {
                     <div class="maint-details">
                         <h5>${typeLabel} <span class="maint-weapon">${escapeHTML(weaponName)}</span></h5>
                         <p>${escapeHTML(m.description)}</p>
-                        ${m.roundCount ? `<p style="font-size:0.75rem;margin-top:0.15rem;color:var(--color-accent);font-weight:600;">Effectué à : ${m.roundCount} tirs</p>` : ''}
+                        ${m.roundCount ? `<p style="font-size:0.75rem;margin-top:0.15rem;color:var(--color-accent);font-weight:600;">${trans['js-maint-effectue-a']} : ${m.roundCount} ${trans['js-maint-tirs']}</p>` : ''}
                     </div>
                 </div>
                 <div class="maint-actions noprint">
-                    <button type="button" class="btn-icon" title="Éditer" onclick="openMaintModal('${m.id}')"><i class="li-pencil"></i></button>
-                    <button type="button" class="btn-icon btn-danger" title="Supprimer" onclick="deleteMaint('${m.id}')"><i class="li-trash"></i></button>
+                    <button type="button" class="btn-icon" title="${trans['js-session-edit']}" onclick="openMaintModal('${m.id}')"><i class="li-pencil"></i></button>
+                    <button type="button" class="btn-icon btn-danger" title="${trans['js-session-delete']}" onclick="deleteMaint('${m.id}')"><i class="li-trash"></i></button>
                 </div>
             </div>
         `;
@@ -1363,10 +1989,11 @@ function renderMaintenance() {
 
 // Populate weapon selector dropdowns in forms
 function populateWeaponSelects() {
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
     const list = [
-        { id: 's_weapon_id', defaultText: '-- Sélectionner --' },
-        { id: 'm_weapon_id', defaultText: '-- Sélectionner --' },
-        { id: 'filter_weapon', defaultText: 'Toutes les armes' }
+        { id: 's_weapon_id', defaultKey: 'js-select-weapon' },
+        { id: 'm_weapon_id', defaultKey: 'js-select-weapon' },
+        { id: 'filter_weapon', defaultKey: 'js-all-weapons' }
     ];
     
     list.forEach(item => {
@@ -1376,7 +2003,7 @@ function populateWeaponSelects() {
         // Preserve active selection if possible
         const activeVal = select.value;
         
-        select.innerHTML = `<option value="">${item.defaultText}</option>`;
+        select.innerHTML = `<option value="">${trans[item.defaultKey]}</option>`;
         state.weapons.forEach(w => {
             select.innerHTML += `<option value="${w.id}">${escapeHTML(w.name)} (${escapeHTML(w.caliber)})</option>`;
         });
@@ -1415,7 +2042,7 @@ function openWeaponModal(weaponId = null) {
     const modal = document.getElementById('modal_weapon');
     const form = document.getElementById('form_weapon');
     
-    document.getElementById('weapon_modal_title').innerText = weaponId ? "Éditer l'arme" : "Ajouter une arme";
+    document.getElementById('weapon_modal_title').innerText = weaponId ? (activeLang === 'en' ? "Edit Weapon" : "Éditer l'arme") : (activeLang === 'en' ? "Add Weapon" : "Ajouter une arme");
     form.reset();
     
     if (weaponId) {
@@ -1439,10 +2066,11 @@ function openWeaponModal(weaponId = null) {
 function saveWeapon(event) {
     event.preventDefault();
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
     const name = document.getElementById('w_name').value.trim();
     const caliber = document.getElementById('w_caliber').value.trim();
     if (!name || !caliber) {
-        showNotification("Le nom et le calibre sont obligatoires.", "error");
+        showNotification(trans['js-error-weapon-req'], "error");
         return;
     }
     
@@ -1462,13 +2090,13 @@ function saveWeapon(event) {
         const idx = state.weapons.findIndex(w => w.id === state.editingWeaponId);
         if (idx !== -1) {
             state.weapons[idx] = { ...state.weapons[idx], ...wData };
-            showNotification("Arme mise à jour avec succès.");
+            showNotification(trans['js-success-weapon-update']);
         }
     } else {
         // Add new
         wData.id = 'w_' + Math.random().toString(36).substr(2, 9);
         state.weapons.push(wData);
-        showNotification("Nouvelle arme enregistrée.");
+        showNotification(trans['js-success-weapon-new']);
     }
     
     saveData();
@@ -1481,17 +2109,18 @@ function deleteWeapon(weaponId) {
     const w = state.weapons.find(wp => wp.id === weaponId);
     if (!w) return;
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
     // Check if sessions are using it
     const sessionCount = state.sessions.filter(s => s.weaponId === weaponId).length;
-    let confirmMsg = `Êtes-vous sûr de vouloir supprimer l'arme "${w.name}" ?`;
+    let confirmMsg = trans['js-confirm-delete-weapon'].replace('{name}', w.name);
     if (sessionCount > 0) {
-        confirmMsg += `\nAttention : cette arme est liée à ${sessionCount} séance(s) de tir. Celles-ci ne seront pas supprimées mais référenceront une arme inconnue.`;
+        confirmMsg += trans['js-confirm-delete-weapon-warning'].replace('{count}', sessionCount);
     }
     
     if (confirm(confirmMsg)) {
         state.weapons = state.weapons.filter(wp => wp.id !== weaponId);
         saveData();
-        showNotification("Arme supprimée.");
+        showNotification(trans['js-success-weapon-delete']);
         renderAll();
     }
 }
@@ -1502,7 +2131,7 @@ function openSessionModal(sessionId = null) {
     const modal = document.getElementById('modal_session');
     const form = document.getElementById('form_session');
     
-    document.getElementById('session_modal_title').innerText = sessionId ? "Éditer la séance" : "Enregistrer une séance de tir";
+    document.getElementById('session_modal_title').innerText = sessionId ? (activeLang === 'en' ? "Edit Session" : "Éditer la séance") : (activeLang === 'en' ? "Record a Shooting Session" : "Enregistrer une séance de tir");
     form.reset();
     
     // Default values for new session
@@ -1545,6 +2174,7 @@ function openSessionModal(sessionId = null) {
 function saveSession(event) {
     event.preventDefault();
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
     const date = document.getElementById('s_date').value;
     const weaponId = document.getElementById('s_weapon_id').value;
     const distance = parseInt(document.getElementById('s_distance').value) || 100;
@@ -1552,7 +2182,7 @@ function saveSession(event) {
     const groupSize = document.getElementById('s_group_size').value.trim();
     
     if (!date || !weaponId) {
-        showNotification("La date et l'arme sont obligatoires.", "error");
+        showNotification(trans['js-error-session-req'], "error");
         return;
     }
     
@@ -1596,13 +2226,13 @@ function saveSession(event) {
         const idx = state.sessions.findIndex(s => s.id === state.editingSessionId);
         if (idx !== -1) {
             state.sessions[idx] = { ...state.sessions[idx], ...sData };
-            showNotification("Séance de tir mise à jour.");
+            showNotification(trans['js-success-session-update']);
         }
     } else {
         // Add new
         sData.id = 's_' + Math.random().toString(36).substr(2, 9);
         state.sessions.push(sData);
-        showNotification("Nouvelle séance enregistrée.");
+        showNotification(trans['js-success-session-new']);
     }
     
     saveData();
@@ -1612,10 +2242,11 @@ function saveSession(event) {
 
 // Delete Session
 function deleteSession(sessionId) {
-    if (confirm("Supprimer définitivement cette séance de tir ?")) {
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    if (confirm(trans['js-confirm-delete-session'])) {
         state.sessions = state.sessions.filter(s => s.id !== sessionId);
         saveData();
-        showNotification("Séance de tir supprimée.");
+        showNotification(trans['js-success-session-delete']);
         renderAll();
     }
 }
@@ -1626,7 +2257,7 @@ function openMaintModal(maintId = null) {
     const modal = document.getElementById('modal_maint');
     const form = document.getElementById('form_maint');
     
-    document.getElementById('maint_modal_title').innerText = maintId ? "Éditer l'entretien" : "Ajouter un entretien";
+    document.getElementById('maint_modal_title').innerText = maintId ? (activeLang === 'en' ? "Edit Maintenance Log" : "Éditer l'entretien") : (activeLang === 'en' ? "Add Maintenance Log" : "Ajouter un entretien");
     form.reset();
     
     if (!maintId) {
@@ -1649,13 +2280,14 @@ function openMaintModal(maintId = null) {
 function saveMaint(event) {
     event.preventDefault();
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
     const date = document.getElementById('m_date').value;
     const weaponId = document.getElementById('m_weapon_id').value;
     const type = document.getElementById('m_type').value;
     const desc = document.getElementById('m_description').value.trim();
     
     if (!date || !weaponId || !desc) {
-        showNotification("Veuillez remplir tous les champs obligatoires (*).", "error");
+        showNotification(trans['js-error-maint-req'], "error");
         return;
     }
     
@@ -1672,13 +2304,13 @@ function saveMaint(event) {
         const idx = state.maintenance.findIndex(m => m.id === state.editingMaintId);
         if (idx !== -1) {
             state.maintenance[idx] = { ...state.maintenance[idx], ...mData };
-            showNotification("Opération d'entretien mise à jour.");
+            showNotification(trans['js-success-maint-update']);
         }
     } else {
         // Add new
         mData.id = 'm_' + Math.random().toString(36).substr(2, 9);
         state.maintenance.push(mData);
-        showNotification("Opération d'entretien enregistrée.");
+        showNotification(trans['js-success-maint-new']);
     }
     
     saveData();
@@ -1688,10 +2320,11 @@ function saveMaint(event) {
 
 // Delete Maintenance
 function deleteMaint(maintId) {
-    if (confirm("Supprimer cette entrée du registre d'entretien ?")) {
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    if (confirm(trans['js-confirm-delete-maint'])) {
         state.maintenance = state.maintenance.filter(m => m.id !== maintId);
         saveData();
-        showNotification("Entrée d'entretien supprimée.");
+        showNotification(trans['js-success-maint-delete']);
         renderAll();
     }
 }
@@ -1734,6 +2367,7 @@ function importData(event) {
     const file = event.target.files[0];
     if (!file) return;
     
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
@@ -1741,10 +2375,10 @@ function importData(event) {
             
             // Validate basic structure
             if (!data.weapons || !data.sessions || !data.maintenance) {
-                throw new Error("Format de fichier invalide.");
+                throw new Error(activeLang === 'en' ? "Invalid file format." : "Format de fichier invalide.");
             }
             
-            if (confirm("Voulez-vous fusionner ces données avec vos données existantes ?\n(Cliquez sur Annuler pour écraser complètement votre base actuelle)")) {
+            if (confirm(trans['js-confirm-import-merge'])) {
                 // Merge data
                 const mergeWeapons = [...state.weapons];
                 data.weapons.forEach(nw => {
@@ -1764,13 +2398,13 @@ function importData(event) {
                 state.weapons = mergeWeapons;
                 state.sessions = mergeSessions;
                 state.maintenance = mergeMaint;
-                showNotification("Données fusionnées avec succès.");
+                showNotification(trans['js-success-import-merge']);
             } else {
                 // Overwrite data
                 state.weapons = data.weapons;
                 state.sessions = data.sessions;
                 state.maintenance = data.maintenance;
-                showNotification("Base de données écrasée et restaurée.");
+                showNotification(trans['js-success-import-overwrite']);
             }
             
             saveData();
@@ -1778,7 +2412,7 @@ function importData(event) {
             
         } catch (err) {
             console.error("Error importing file", err);
-            alert("Erreur lors de l'importation du fichier. Assurez-vous qu'il s'agit d'un fichier JSON valide issu de cet outil.");
+            alert(activeLang === 'en' ? "Error importing file. Make sure it is a valid JSON file exported from this tool." : "Erreur lors de l'importation du fichier. Assurez-vous qu'il s'agit d'un fichier JSON valide issu de cet outil.");
         }
     };
     reader.readAsText(file);
@@ -1786,7 +2420,8 @@ function importData(event) {
 
 // Clear Database completely
 function clearDatabase() {
-    if (confirm("ATTENTION : Cette action supprimera définitivement toutes vos données locales (armes, séances de tir et entretien).\nCette action est irréversible.\n\nVoulez-vous continuer ?")) {
+    const trans = I18N_CARNET[activeLang] || I18N_CARNET['fr'];
+    if (confirm(trans['js-confirm-clear-db'])) {
         localStorage.removeItem('tireur_weapons');
         localStorage.removeItem('tireur_sessions');
         localStorage.removeItem('tireur_maintenance');
@@ -1794,7 +2429,7 @@ function clearDatabase() {
         state.sessions = [];
         state.maintenance = [];
         
-        showNotification("Base de données réinitialisée.", "error");
+        showNotification(trans['js-success-db-clear'], "error");
         renderAll();
     }
 }

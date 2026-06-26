@@ -21,8 +21,8 @@ include 'header.php';
     <div class="noprint" style="border: 1px solid var(--color-border); background: var(--color-bg); padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 0.75rem;">
         <i class="li-info" style="font-size: 1.25rem; color: var(--color-accent); margin-top: 0.1rem;"></i>
         <div>
-            <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem; color: var(--color-text);">Version de démonstration / Exemple complet</h4>
-            <p style="margin: 0; font-size: 0.85rem; color: var(--color-text-light); line-height: 1.4;">
+            <h4 id="lbl-demo-banner-title" style="margin: 0 0 0.25rem 0; font-size: 0.95rem; color: var(--color-text);">Version de démonstration / Exemple complet</h4>
+            <p id="lbl-demo-banner-desc" style="margin: 0; font-size: 0.85rem; color: var(--color-text-light); line-height: 1.4;">
                 Ce carnet de tir est pré-rempli avec des données fictives d'exemples (armes, séances avec impacts sur cibles, et entretien) pour vous permettre de tester toutes les fonctionnalités (affichage plein écran, calculateur de dispersion, graphiques de statistiques, et export/import). 
                 Pour utiliser votre propre carnet de tir vide et sécurisé localement, accédez à la page <a href="/carnet-de-tir.php" style="font-weight:600; text-decoration: underline;">Carnet de tir personnel</a>.
             </p>
@@ -31,23 +31,27 @@ include 'header.php';
 
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
         <div>
-            <h1 style="margin-bottom:0.25rem;">Carnet de Tir Numérique <span style="font-size: 0.5em; font-weight: normal; vertical-align: middle; background: var(--color-border); color: var(--color-text-light); padding: 0.2rem 0.5rem; border-radius: 12px; margin-left: 0.5rem; border: 1px solid var(--color-border);">EXEMPLE</span></h1>
-            <p style="color:var(--color-text-light); margin:0;">Suivez vos armes, séances de tir et opérations d'entretien. Fonctionne 100% hors-ligne et localement.</p>
+            <h1 id="logbook-main-title" style="margin-bottom:0.25rem;">Carnet de Tir Numérique <span id="logbook-demo-badge" style="font-size: 0.5em; font-weight: normal; vertical-align: middle; background: var(--color-border); color: var(--color-text-light); padding: 0.2rem 0.5rem; border-radius: 12px; margin-left: 0.5rem; border: 1px solid var(--color-border);">EXEMPLE</span></h1>
+            <p id="logbook-sub-title" style="color:var(--color-text-light); margin:0;">Suivez vos armes, séances de tir et opérations d'entretien. Fonctionne 100% hors-ligne et localement.</p>
         </div>
         <div class="noprint" style="display:flex; gap:0.5rem; align-items:center;">
-            <button type="button" id="btn-fullscreen" class="btn-secondary" onclick="toggleFullscreen()"><i class="li-eye"></i> Plein écran</button>
-            <button type="button" class="btn-secondary" onclick="printBlankSheet()"><i class="li-printer"></i> Imprimer fiche vierge</button>
-            <button type="button" class="btn-primary" onclick="openSessionModal()"><i class="li-plus"></i> Nouvelle séance</button>
+            <div class="lang-selector noprint" style="margin-right:0.25rem;">
+                <button class="lang-btn active" data-lang="fr" id="lang-btn-fr">FR</button>
+                <button class="lang-btn" data-lang="en" id="lang-btn-en">EN</button>
+            </div>
+            <button type="button" id="btn-fullscreen" class="btn-secondary" onclick="toggleFullscreen()"><i class="li-eye"></i> <span id="lbl-fullscreen">Plein écran</span></button>
+            <button type="button" class="btn-secondary" onclick="printBlankSheet()"><i class="li-printer"></i> <span id="lbl-print-blank">Imprimer fiche vierge</span></button>
+            <button type="button" class="btn-primary" onclick="openSessionModal()"><i class="li-plus"></i> <span id="lbl-new-session">Nouvelle séance</span></button>
         </div>
     </div>
 
     <!-- Navigation par Onglets -->
     <nav class="logbook-nav noprint">
-        <button class="logbook-tab-btn active" data-tab="dashboard"><i class="li-image"></i> Tableau de bord</button>
-        <button class="logbook-tab-btn" data-tab="weapons"><i class="li-target"></i> Mes Armes</button>
-        <button class="logbook-tab-btn" data-tab="sessions" id="tab-btn-sessions"><i class="li-file-text"></i> Séances (<span id="nav_session_count">0</span>)</button>
-        <button class="logbook-tab-btn" data-tab="maintenance"><i class="li-clock"></i> Entretien</button>
-        <button class="logbook-tab-btn" data-tab="settings"><i class="li-settings"></i> Réglages &amp; Sauvegarde</button>
+        <button class="logbook-tab-btn active" data-tab="dashboard" id="tab-dashboard"><i class="li-image"></i> <span id="lbl-tab-dashboard">Tableau de bord</span></button>
+        <button class="logbook-tab-btn" data-tab="weapons" id="tab-weapons"><i class="li-target"></i> <span id="lbl-tab-weapons">Mes Armes</span></button>
+        <button class="logbook-tab-btn" data-tab="sessions" id="tab-btn-sessions"><i class="li-file-text"></i> <span id="lbl-tab-sessions">Séances</span> (<span id="nav_session_count">0</span>)</button>
+        <button class="logbook-tab-btn" data-tab="maintenance" id="tab-maintenance"><i class="li-clock"></i> <span id="lbl-tab-maintenance">Entretien</span></button>
+        <button class="logbook-tab-btn" data-tab="settings" id="tab-settings"><i class="li-settings"></i> <span id="lbl-tab-settings">Réglages &amp; Sauvegarde</span></button>
     </nav>
 
     <div class="logbook-container">
@@ -58,28 +62,28 @@ include 'header.php';
                 <div class="db-card">
                     <div class="db-card-icon"><i class="li-target"></i></div>
                     <div class="db-card-info">
-                        <h4>Coups tirés</h4>
+                        <h4 id="lbl-stat-rounds">Coups tirés</h4>
                         <p id="stat_total_rounds" class="db-val">0</p>
                     </div>
                 </div>
                 <div class="db-card">
                     <div class="db-card-icon"><i class="li-file-text"></i></div>
                     <div class="db-card-info">
-                        <h4>Séances</h4>
+                        <h4 id="lbl-stat-sessions">Séances</h4>
                         <p id="stat_total_sessions" class="db-val">0</p>
                     </div>
                 </div>
                 <div class="db-card">
                     <div class="db-card-icon"><i class="li-target"></i></div>
                     <div class="db-card-info">
-                        <h4>Armes actives</h4>
+                        <h4 id="lbl-stat-weapons">Armes actives</h4>
                         <p id="stat_total_weapons" class="db-val">0</p>
                     </div>
                 </div>
                 <div class="db-card">
                     <div class="db-card-icon"><i class="li-clock"></i></div>
                     <div class="db-card-info">
-                        <h4>Entretiens</h4>
+                        <h4 id="lbl-stat-maint">Entretiens</h4>
                         <p id="stat_total_maint" class="db-val">0</p>
                     </div>
                 </div>
@@ -87,13 +91,13 @@ include 'header.php';
 
             <div class="db-sections-grid">
                 <div class="db-panel">
-                    <h3>Volume de tir (6 derniers mois)</h3>
+                    <h3 id="lbl-title-chart">Volume de tir (6 derniers mois)</h3>
                     <div id="db_chart_container" class="chart-container">
                         <!-- Généré en SVG via JS -->
                     </div>
                 </div>
                 <div class="db-panel">
-                    <h3>Séances récentes</h3>
+                    <h3 id="lbl-title-recent">Séances récentes</h3>
                     <div id="db_recent_sessions">
                         <!-- Généré en JS -->
                     </div>
@@ -104,7 +108,7 @@ include 'header.php';
         <!-- ONGLET : Mes Armes -->
         <section id="weapons" class="logbook-tab-content">
             <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;" class="noprint">
-                <button type="button" class="btn-primary" onclick="openWeaponModal()"><i class="li-plus"></i> Ajouter une arme</button>
+                <button type="button" class="btn-primary" onclick="openWeaponModal()"><i class="li-plus"></i> <span id="lbl-add-weapon">Ajouter une arme</span></button>
             </div>
             <div id="weapons_grid">
                 <!-- Cartes d'armes générées en JS -->
@@ -116,16 +120,16 @@ include 'header.php';
             <!-- Barre de filtre -->
             <div class="sessions-filter-bar noprint">
                 <div class="filter-group">
-                    <label for="filter_weapon">Arme :</label>
+                    <label for="filter_weapon" id="lbl-filter-weapon">Arme :</label>
                     <select id="filter_weapon" onchange="applyFilters()">
-                        <option value="">Toutes les armes</option>
+                        <option value="" id="opt-all-weapons">Toutes les armes</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label for="filter_stand">Stand / Lieu :</label>
+                    <label for="filter_stand" id="lbl-filter-stand">Stand / Lieu :</label>
                     <input type="text" id="filter_stand" placeholder="Ex: CTF, Bordeaux..." oninput="applyFilters()">
                 </div>
-                <button type="button" class="btn-secondary" onclick="resetFilters()">Réinitialiser</button>
+                <button type="button" class="btn-secondary" id="btn-reset-filters" onclick="resetFilters()">Réinitialiser</button>
             </div>
 
             <div id="sessions_list">
@@ -136,7 +140,7 @@ include 'header.php';
         <!-- ONGLET : Entretien -->
         <section id="maintenance" class="logbook-tab-content">
             <div style="display:flex; justify-content:flex-end; margin-bottom:1rem;" class="noprint">
-                <button type="button" class="btn-primary" onclick="openMaintModal()"><i class="li-plus"></i> Ajouter un entretien</button>
+                <button type="button" class="btn-primary" onclick="openMaintModal()"><i class="li-plus"></i> <span id="lbl-add-maint">Ajouter un entretien</span></button>
             </div>
             <div id="maint_list">
                 <!-- Registre d'entretien généré en JS -->
@@ -146,8 +150,8 @@ include 'header.php';
         <!-- ONGLET : Sauvegarde & Réglages -->
         <section id="settings" class="logbook-tab-content">
             <div class="db-panel" style="max-width: 650px; margin: 0 auto;">
-                <h3>Gestion locale des données</h3>
-                <p style="font-size:0.9rem; color:var(--color-text-light); line-height:1.5; margin-bottom:1.5rem;">
+                <h3 id="lbl-settings-title">Gestion locale des données</h3>
+                <p id="lbl-settings-desc" style="font-size:0.9rem; color:var(--color-text-light); line-height:1.5; margin-bottom:1.5rem;">
                     Toutes les données de ce carnet de tir sont stockées dans le stockage local de votre navigateur (LocalStorage). 
                     Aucune donnée n'est envoyée vers nos serveurs. Pour éviter toute perte en cas de nettoyage du navigateur, 
                     nous vous conseillons d'effectuer des sauvegardes régulières.
@@ -155,22 +159,22 @@ include 'header.php';
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:2rem;">
                     <div style="border:1px solid var(--color-border); padding:1rem; border-radius:var(--radius); text-align:center;">
-                        <h4 style="margin:0 0 0.5rem 0;">Exporter mes données</h4>
-                        <p style="font-size:0.8rem; color:var(--color-text-light); margin-bottom:1rem;">Téléchargez un fichier de sauvegarde contenant toutes vos armes, séances et entretiens.</p>
-                        <button type="button" class="btn-primary" style="width:100%; justify-content:center;" onclick="exportData()"><i class="li-file-text"></i> Exporter au format JSON</button>
+                        <h4 id="lbl-export-title" style="margin:0 0 0.5rem 0;">Exporter mes données</h4>
+                        <p id="lbl-export-desc" style="font-size:0.8rem; color:var(--color-text-light); margin-bottom:1rem;">Téléchargez un fichier de sauvegarde contenant toutes vos armes, séances et entretiens.</p>
+                        <button type="button" class="btn-primary" style="width:100%; justify-content:center;" onclick="exportData()"><i class="li-file-text"></i> <span id="lbl-export-btn">Exporter au format JSON</span></button>
                     </div>
                     <div style="border:1px solid var(--color-border); padding:1rem; border-radius:var(--radius); text-align:center;">
-                        <h4 style="margin:0 0 0.5rem 0;">Importer une sauvegarde</h4>
-                        <p style="font-size:0.8rem; color:var(--color-text-light); margin-bottom:1rem;">Restaurez vos données ou fusionnez-les depuis un fichier précédemment exporté.</p>
-                        <button type="button" class="btn-secondary" style="width:100%; justify-content:center;" onclick="triggerImport()"><i class="li-folder"></i> Importer un fichier</button>
+                        <h4 id="lbl-import-title" style="margin:0 0 0.5rem 0;">Importer une sauvegarde</h4>
+                        <p id="lbl-import-desc" style="font-size:0.8rem; color:var(--color-text-light); margin-bottom:1rem;">Restaurez vos données ou fusionnez-les depuis un fichier précédemment exporté.</p>
+                        <button type="button" class="btn-secondary" style="width:100%; justify-content:center;" onclick="triggerImport()"><i class="li-folder"></i> <span id="lbl-import-btn">Importer un fichier</span></button>
                         <input type="file" id="import_file_input" style="display:none;" accept=".json" onchange="importData(event)">
                     </div>
                 </div>
 
                 <div style="border:1px solid #f5c2c2; background:rgba(231, 76, 60, 0.03); padding:1.25rem; border-radius:var(--radius); margin-top:2rem;">
-                    <h4 style="color:#e74c3c; margin:0 0 0.5rem 0;"><i class="li-alert"></i> Zone de Danger</h4>
-                    <p style="font-size:0.85rem; color:var(--color-text-light); margin-bottom:1rem;">Cette action effacera définitivement l'intégralité du carnet de tir (armes, tirs, entretiens) sur ce navigateur.</p>
-                    <button type="button" class="btn-secondary btn-danger-text" onclick="clearDatabase()">Réinitialiser le carnet de tir</button>
+                    <h4 id="lbl-danger-title" style="color:#e74c3c; margin:0 0 0.5rem 0;"><i class="li-alert"></i> Zone de Danger</h4>
+                    <p id="lbl-danger-desc" style="font-size:0.85rem; color:var(--color-text-light); margin-bottom:1rem;">Cette action effacera définitivement l'intégralité du carnet de tir (armes, tirs, entretiens) sur ce navigateur.</p>
+                    <button type="button" class="btn-secondary btn-danger-text" id="lbl-danger-btn" onclick="clearDatabase()">Réinitialiser le carnet de tir</button>
                 </div>
             </div>
         </section>
@@ -193,42 +197,42 @@ include 'header.php';
             <div class="modal-body">
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label for="w_name">Modèle / Nom de l'arme *</label>
+                        <label for="w_name" id="lbl-w-name">Modèle / Nom de l'arme *</label>
                         <input type="text" id="w_name" placeholder="Ex: Tikka T3x TAC A1, Glock 17..." required>
                     </div>
                     <div class="form-group">
-                        <label for="w_caliber">Calibre *</label>
+                        <label for="w_caliber" id="lbl-w-caliber">Calibre *</label>
                         <input type="text" id="w_caliber" placeholder="Ex: 6.5 Creedmoor, 9x19mm..." list="calibers_list" required>
                     </div>
                     <div class="form-group">
-                        <label for="w_barrel_length">Longueur de canon (pouces)</label>
+                        <label for="w_barrel_length" id="lbl-w-barrel-length">Longueur de canon (pouces)</label>
                         <input type="number" id="w_barrel_length" step="0.1" placeholder="Ex: 24, 4.5">
                     </div>
                     <div class="form-group">
-                        <label for="w_twist_rate">Pas de rayure (1:X pouces)</label>
+                        <label for="w_twist_rate" id="lbl-w-twist-rate">Pas de rayure (1:X pouces)</label>
                         <input type="number" id="w_twist_rate" step="0.1" placeholder="Ex: 8, 10">
                     </div>
                     <div class="form-group">
-                        <label for="w_zero_distance">Distance de zéro (mètres)</label>
+                        <label for="w_zero_distance" id="lbl-w-zero-distance">Distance de zéro (mètres)</label>
                         <input type="number" id="w_zero_distance" placeholder="Ex: 100, 25">
                     </div>
                     <div class="form-group full-width">
-                        <label for="w_optics">Lunette / Optique</label>
+                        <label for="w_optics" id="lbl-w-optics">Lunette / Optique</label>
                         <input type="text" id="w_optics" placeholder="Ex: Vortex Viper PST II 5-25x50">
                     </div>
                     <div class="form-group">
-                        <label for="w_initial_round_count">Compteur initial (tirs antérieurs)</label>
+                        <label for="w_initial_round_count" id="lbl-w-count">Compteur initial (tirs antérieurs)</label>
                         <input type="number" id="w_initial_round_count" value="0" min="0">
                     </div>
                     <div class="form-group full-width">
-                        <label for="w_notes">Notes / Caractéristiques additionnelles</label>
+                        <label for="w_notes" id="lbl-w-notes">Notes / Caractéristiques additionnelles</label>
                         <textarea id="w_notes" rows="3" placeholder="Poids de détente, rechargement favori, date d'acquisition..."></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeModal('modal_weapon')">Annuler</button>
-                <button type="submit" class="btn-primary">Enregistrer</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('modal_weapon')" id="btn-w-cancel">Annuler</button>
+                <button type="submit" class="btn-primary" id="btn-w-save">Enregistrer</button>
             </div>
         </form>
     </div>
@@ -245,67 +249,67 @@ include 'header.php';
             <div class="modal-body" style="padding:1.25rem;">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="s_date">Date de la séance *</label>
+                        <label for="s_date" id="lbl-s-date">Date de la séance *</label>
                         <input type="date" id="s_date" required>
                     </div>
                     <div class="form-group">
-                        <label for="s_stand">Stand de tir / Lieu</label>
+                        <label for="s_stand" id="lbl-s-stand">Stand de tir / Lieu</label>
                         <input type="text" id="s_stand" placeholder="Ex: Stand de tir de Versailles">
                     </div>
                     <div class="form-group">
-                        <label for="s_weapon_id">Arme utilisée *</label>
+                        <label for="s_weapon_id" id="lbl-s-weapon">Arme utilisée *</label>
                         <select id="s_weapon_id" required>
-                            <option value="">-- Sélectionner --</option>
+                            <option value="" id="opt-s-select">-- Sélectionner --</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="s_caliber">Calibre</label>
+                        <label for="s_caliber" id="lbl-s-caliber">Calibre</label>
                         <input type="text" id="s_caliber" placeholder="Ex: 6.5 CM (autocomplété)" list="calibers_list">
                     </div>
                     
-                    <h4 class="full-width" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Munition &amp; Balistique</h4>
+                    <h4 class="full-width" id="lbl-s-sub-ammo" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Munition &amp; Balistique</h4>
                     
                     <div class="form-group">
-                        <label for="s_ammo">Munition / Ogive</label>
+                        <label for="s_ammo" id="lbl-s-ammo">Munition / Ogive</label>
                         <input type="text" id="s_ammo" placeholder="Ex: Lapua Scenar 139gr, S&amp;B 124gr">
                     </div>
                     <div class="form-group">
-                        <label for="s_bullet_weight">Poids de balle (gr)</label>
+                        <label for="s_bullet_weight" id="lbl-s-weight">Poids de balle (gr)</label>
                         <input type="number" id="s_bullet_weight" placeholder="Ex: 139">
                     </div>
                     <div class="form-group">
-                        <label for="s_powder_charge">Charge de poudre (gr)</label>
+                        <label for="s_powder_charge" id="lbl-s-charge">Charge de poudre (gr)</label>
                         <input type="number" id="s_powder_charge" step="0.01" placeholder="Ex: 37.5">
                     </div>
                     <div class="form-group">
-                        <label for="s_velocity">Vitesse initiale mesurée (m/s)</label>
+                        <label for="s_velocity" id="lbl-s-velocity">Vitesse initiale mesurée (m/s)</label>
                         <input type="number" id="s_velocity" placeholder="Ex: 820">
                     </div>
                     
-                    <h4 class="full-width" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Conditions &amp; Résultats</h4>
+                    <h4 class="full-width" id="lbl-s-sub-cond" style="margin:1rem 0 0.5rem 0; border-bottom:1px solid var(--color-border); padding-bottom:0.25rem;">Conditions &amp; Résultats</h4>
                     
                     <div class="form-group">
-                        <label for="s_distance">Distance (mètres) *</label>
+                        <label for="s_distance" id="lbl-s-distance">Distance (mètres) *</label>
                         <input type="number" id="s_distance" value="100" required>
                     </div>
                     <div class="form-group">
-                        <label for="s_temp">Température ambiante (°C)</label>
+                        <label for="s_temp" id="lbl-s-temp">Température ambiante (°C)</label>
                         <input type="number" id="s_temp" placeholder="Ex: 18">
                     </div>
                     <div class="form-group">
-                        <label for="s_wind">Vitesse du vent (m/s)</label>
+                        <label for="s_wind" id="lbl-s-wind">Vitesse du vent (m/s)</label>
                         <input type="number" id="s_wind" placeholder="Ex: 3">
                     </div>
                     <div class="form-group">
-                        <label for="s_notes">Notes additionnelles</label>
+                        <label for="s_notes" id="lbl-s-notes">Notes additionnelles</label>
                         <input type="text" id="s_notes" placeholder="Sensations, réglages de clics effectués...">
                     </div>
-
+ 
                     <!-- Plotter de cible interactif -->
                     <div class="form-group full-width">
                         <label style="display:flex; justify-content:space-between;">
-                            <span>Calculateur de dispersion interactif</span>
-                            <span style="font-weight:normal;color:var(--color-text-light);">Cliquez sur la cible pour tracer vos impacts</span>
+                            <span id="lbl-plotter-title">Calculateur de dispersion interactif</span>
+                            <span id="lbl-plotter-hint" style="font-weight:normal;color:var(--color-text-light);">Cliquez sur la cible pour tracer vos impacts</span>
                         </label>
                         
                         <div class="target-plotter-container">
@@ -314,14 +318,14 @@ include 'header.php';
                                     <!-- Axes, anneaux et impacts générés par JS -->
                                 </div>
                                 <div class="target-controls">
-                                    <button type="button" class="btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="undoPlotter()"><i class="li-arrow-left"></i> Annuler</button>
-                                    <button type="button" class="btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="clearPlotter()"><i class="li-trash"></i> Tout effacer</button>
+                                    <button type="button" class="btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="undoPlotter()"><i class="li-arrow-left"></i> <span id="lbl-plotter-undo">Annuler</span></button>
+                                    <button type="button" class="btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="clearPlotter()"><i class="li-trash"></i> <span id="lbl-plotter-clear">Tout effacer</span></button>
                                 </div>
                             </div>
                             
                             <div class="target-plotter-stats">
                                 <div style="margin-bottom:0.75rem;">
-                                    <label for="target_preset" style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Type de cible / Échelle</label>
+                                    <label for="target_preset" id="lbl-plotter-preset" style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Type de cible / Échelle</label>
                                     <select id="target_preset" style="width:100%;font-size:0.85rem;padding:0.4rem;">
                                         <option value="issf_50m" selected>C50 (50m Carabine)</option>
                                         <option value="c200">C200 (200m Carabine - Visuel 400mm)</option>
@@ -345,23 +349,23 @@ include 'header.php';
                                 
                                 <div class="target-stats-grid">
                                     <div class="target-stat-item">
-                                        <label>Impacts</label>
+                                        <label id="lbl-stat-col-1">Impacts</label>
                                         <div id="lbl_shot_count" class="target-stat-val">0</div>
                                     </div>
                                     <div class="target-stat-item">
-                                        <label>Dispersion (ES)</label>
+                                        <label id="lbl-stat-col-2">Dispersion (ES)</label>
                                         <div id="lbl_group_size_mm" class="target-stat-val">-</div>
                                     </div>
                                     <div class="target-stat-item">
-                                        <label>Dispersion (MOA)</label>
+                                        <label id="lbl-stat-col-3">Dispersion (MOA)</label>
                                         <div id="lbl_group_size_moa" class="target-stat-val">-</div>
                                     </div>
                                     <div class="target-stat-item">
-                                        <label>Dispersion (MRAD)</label>
+                                        <label id="lbl-stat-col-4">Dispersion (MRAD)</label>
                                         <div id="lbl_group_size_mrad" class="target-stat-val">-</div>
                                     </div>
                                     <div class="target-stat-item" style="grid-column: 1 / -1;">
-                                        <label>Point moyen d'impact (MPI)</label>
+                                        <label id="lbl-stat-mpi">Point moyen d'impact (MPI)</label>
                                         <div style="font-size:0.85rem;font-weight:bold;">
                                             X: <span id="lbl_mpi_x">-</span> | Y: <span id="lbl_mpi_y">-</span>
                                         </div>
@@ -370,15 +374,15 @@ include 'header.php';
                             </div>
                         </div>
                     </div>
-
+ 
                     <!-- Champs de valeur finale liés au plotter -->
                     <input type="hidden" id="s_rounds_fired" value="0">
                     <input type="hidden" id="s_group_size" value="0">
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeModal('modal_session')">Annuler</button>
-                <button type="submit" class="btn-primary">Enregistrer la séance</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('modal_session')" id="btn-s-cancel">Annuler</button>
+                <button type="submit" class="btn-primary" id="btn-s-save">Enregistrer la séance</button>
             </div>
         </form>
     </div>
@@ -395,37 +399,37 @@ include 'header.php';
             <div class="modal-body">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="m_date">Date de l'opération *</label>
+                        <label for="m_date" id="lbl-m-date">Date de l'opération *</label>
                         <input type="date" id="m_date" required>
                     </div>
                     <div class="form-group">
-                        <label for="m_weapon_id">Arme concernée *</label>
+                        <label for="m_weapon_id" id="lbl-m-weapon">Arme concernée *</label>
                         <select id="m_weapon_id" required>
-                            <option value="">-- Sélectionner --</option>
+                            <option value="" id="opt-m-select">-- Sélectionner --</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="m_type">Type d'entretien *</label>
+                        <label for="m_type" id="lbl-m-type">Type d'entretien *</label>
                         <select id="m_type" required>
-                            <option value="nettoyage">Nettoyage standard</option>
-                            <option value="piece">Changement de pièce</option>
-                            <option value="rodage">Rodage canon</option>
-                            <option value="autre">Autre opération</option>
+                            <option value="nettoyage" id="opt-m-clean">Nettoyage standard</option>
+                            <option value="piece" id="opt-m-piece">Changement de pièce</option>
+                            <option value="rodage" id="opt-m-breakin">Rodage canon</option>
+                            <option value="autre" id="opt-m-other">Autre opération</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="m_round_count">Tir à l'entretien (Round count)</label>
+                        <label for="m_round_count" id="lbl-m-count">Tir à l'entretien (Round count)</label>
                         <input type="number" id="m_round_count" placeholder="Ex: 450 (facultatif)">
                     </div>
                     <div class="form-group full-width">
-                        <label for="m_description">Description / Détails *</label>
+                        <label for="m_description" id="lbl-m-desc">Description / Détails *</label>
                         <textarea id="m_description" rows="3" placeholder="Ex: Nettoyage complet au solvant, remplacement du ressort de rappel..." required></textarea>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-secondary" onclick="closeModal('modal_maint')">Annuler</button>
-                <button type="submit" class="btn-primary">Enregistrer</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('modal_maint')" id="btn-m-cancel">Annuler</button>
+                <button type="submit" class="btn-primary" id="btn-m-save">Enregistrer</button>
             </div>
         </form>
     </div>
@@ -435,25 +439,25 @@ include 'header.php';
 <div id="modal_print_blank" class="modal-overlay">
     <div class="modal-box" style="max-width: 500px;">
         <div class="modal-header">
-            <h3>Imprimer une fiche de tir vierge</h3>
+            <h3 id="lbl-p-title">Imprimer une fiche de tir vierge</h3>
             <button class="modal-close" onclick="closeModal('modal_print_blank')">&times;</button>
         </div>
         <div class="modal-body">
-            <p style="font-size:0.9rem; color:var(--color-text-light); margin-bottom:1.25rem;">
+            <p id="lbl-p-desc" style="font-size:0.9rem; color:var(--color-text-light); margin-bottom:1.25rem;">
                 Sélectionnez le format de fiche de tir adapté à votre discipline ou entraînement.
             </p>
             <div class="form-group">
-                <label for="print_blank_type" style="font-weight:600; display:block; margin-bottom:0.25rem;">Discipline / Format de la fiche :</label>
+                <label for="print_blank_type" id="lbl-p-type" style="font-weight:600; display:block; margin-bottom:0.25rem;">Discipline / Format de la fiche :</label>
                 <select id="print_blank_type" style="width:100%; padding:0.6rem; font-size:0.95rem; border-radius:var(--radius); border:1px solid var(--color-border); background:var(--color-surface); color:var(--color-text);">
-                    <option value="generic">Générique / Entraînement Standard (1 cible + table de 20 tirs)</option>
-                    <option value="issf">Match ISSF - 60 coups (6 cibles x 10 coups + tableau de scores)</option>
-                    <option value="tld">Tir Longue Distance - TLD (1 cible TLD + table balistique & clics)</option>
+                    <option value="generic" id="opt-p-generic">Générique / Entraînement Standard (1 cible + table de 20 tirs)</option>
+                    <option value="issf" id="opt-p-issf">Match ISSF - 60 coups (6 cibles x 10 coups + tableau de scores)</option>
+                    <option value="tld" id="opt-p-tld">Tir Longue Distance - TLD (1 cible TLD + table balistique & clics)</option>
                 </select>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn-secondary" onclick="closeModal('modal_print_blank')">Annuler</button>
-            <button type="button" class="btn-primary" onclick="executePrintBlank()"><i class="li-printer"></i> Imprimer</button>
+            <button type="button" class="btn-secondary" onclick="closeModal('modal_print_blank')" id="btn-p-cancel">Annuler</button>
+            <button type="button" class="btn-primary" onclick="executePrintBlank()" id="btn-p-print"><i class="li-printer"></i> Imprimer</button>
         </div>
     </div>
 </div>
@@ -461,36 +465,36 @@ include 'header.php';
 <!-- Template d'impression de fiche vierge -->
 <div id="blank_print_template">
     <div class="print-header">
-        <h2>Carnet de Tir Numérique — Fiche de Séance</h2>
+        <h2 id="lbl-print-tpl-title">Carnet de Tir Numérique — Fiche de Séance</h2>
         <span class="print-website">www.tireur.org</span>
     </div>
     
     <div class="print-meta-grid">
-        <div class="print-meta-item"><label>Date :</label> ____________________</div>
-        <div class="print-meta-item"><label>Lieu / Stand :</label> ____________________</div>
-        <div class="print-meta-item"><label>Arme utilisée :</label> ____________________</div>
-        <div class="print-meta-item"><label>Calibre :</label> ____________________</div>
+        <div class="print-meta-item"><label id="lbl-print-tpl-date">Date :</label> ____________________</div>
+        <div class="print-meta-item"><label id="lbl-print-tpl-stand">Lieu / Stand :</label> ____________________</div>
+        <div class="print-meta-item"><label id="lbl-print-tpl-weapon">Arme utilisée :</label> ____________________</div>
+        <div class="print-meta-item"><label id="lbl-print-tpl-caliber">Calibre :</label> ____________________</div>
     </div>
     
     <div class="print-sections-grid">
         <div class="print-section-left">
             <div class="print-field-group">
-                <h3>Munition &amp; Rechargement</h3>
-                <div class="print-field"><strong>Munition / Ogive :</strong> _________________________</div>
-                <div class="print-field"><strong>Poids de balle :</strong> ________ gr</div>
-                <div class="print-field"><strong>Poudre / Charge :</strong> ________ gr</div>
-                <div class="print-field"><strong>Vitesse moyenne :</strong> ________ m/s</div>
+                <h3 id="lbl-print-tpl-sub-ammo">Munition &amp; Rechargement</h3>
+                <div class="print-field"><strong id="lbl-print-tpl-ammo">Munition / Ogive :</strong> _________________________</div>
+                <div class="print-field"><strong id="lbl-print-tpl-weight">Poids de balle :</strong> ________ gr</div>
+                <div class="print-field"><strong id="lbl-print-tpl-charge">Poudre / Charge :</strong> ________ gr</div>
+                <div class="print-field"><strong id="lbl-print-tpl-velocity">Vitesse moyenne :</strong> ________ m/s</div>
             </div>
             
             <div class="print-field-group">
-                <h3>Conditions de tir</h3>
-                <div class="print-field"><strong>Distance :</strong> ________ m</div>
-                <div class="print-field"><strong>Température :</strong> ________ °C</div>
-                <div class="print-field"><strong>Vent :</strong> ________ m/s (Dir: ________)</div>
+                <h3 id="lbl-print-tpl-sub-cond">Conditions de tir</h3>
+                <div class="print-field"><strong id="lbl-print-tpl-distance">Distance :</strong> ________ m</div>
+                <div class="print-field"><strong id="lbl-print-tpl-temp">Température :</strong> ________ °C</div>
+                <div class="print-field"><strong id="lbl-print-tpl-wind">Vent :</strong> ________ m/s (Dir: ________)</div>
             </div>
             
             <div class="print-field-group" style="flex-grow: 1;">
-                <h3>Notes / Observations</h3>
+                <h3 id="lbl-print-tpl-sub-notes">Notes / Observations</h3>
                 <div class="print-notes-lines">
                     <div class="print-line"></div>
                     <div class="print-line"></div>
@@ -502,7 +506,7 @@ include 'header.php';
         </div>
         
         <div class="print-section-right">
-            <h3>Tracé des impacts</h3>
+            <h3 id="lbl-print-tpl-target-title">Tracé des impacts</h3>
             <div class="print-target-container">
                 <svg viewBox="0 0 280 280" width="280" height="280" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="140" cy="140" r="135" fill="none" stroke="#333" stroke-width="1.5" />
@@ -535,7 +539,7 @@ include 'header.php';
                     <text x="140" y="132" font-size="8" text-anchor="middle" fill="#666" font-family="monospace">9</text>
                 </svg>
             </div>
-            <div class="print-target-caption">Cible de réglage (C50 proportionnelle)</div>
+            <div class="print-target-caption" id="lbl-print-tpl-target-caption">Cible de réglage (C50 proportionnelle)</div>
         </div>
     </div>
 </div>
