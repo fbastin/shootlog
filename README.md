@@ -13,11 +13,11 @@ It is designed as a client-side, offline-first web application enabling sport sh
 - **Data Portability:** Easily export and import your entire database as a standard JSON backup file (supporting merging or overwriting existing data).
 - **Printable Session Sheets:** Generate professional print layouts for blank shooting sheets (Generic, ISSF Match, or Long Range TLD formats) or pre-filled session logs.
 
-## Setup & Integration
+## Setup & Dependencies
 To run the logbook on a web server:
 1. Ensure the core HTML template or PHP wrapper loads the main styling `/css/carnet.css`.
-2. Include the target generator script `/js/targets/target_generator.js` and the logbook logic `/js/carnet.js`.
-3. Provide the caliber completion database under `/calibers/calibers.json` or as a globally defined `CALIBERS_DB` array.
+2. Include the target generator script `/js/targets/target_generator.js` (available from the [targets repository](https://github.com/fbastin/targets)) and the logbook logic `/js/carnet.js`.
+3. Provide the caliber completion database (available from the [calibers repository](https://github.com/fbastin/calibers)) under `/calibers/calibers.json` or as a globally defined `CALIBERS_DB` array.
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
